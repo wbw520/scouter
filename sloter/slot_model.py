@@ -67,7 +67,7 @@ class SlotModel(nn.Module):
                 param.requires_grad = False
             self.dfs_freeze_bnorm(child)
 
-    def forward(self, x, target):
+    def forward(self, x, target=None):
         x = self.backbone(x)
         if self.use_slot:
             x = self.conv1x1(x.view(x.size(0), 2048, 9, 9))

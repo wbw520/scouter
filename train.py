@@ -24,11 +24,11 @@ def get_args_parser():
     parser.add_argument("--num_classes", default=50, type=int)
     parser.add_argument('--img_size', default=260, help='path for save data')
     parser.add_argument('--pre_trained', default=True, help='whether use pre parameter for backbone')
-    parser.add_argument('--use_slot', default=False, help='whether use slot module')
+    parser.add_argument('--use_slot', default=True, help='whether use slot module')
     parser.add_argument('--use_pre', default=True, help='whether use pre dataset parameter')
 
     # slot setting
-    parser.add_argument('--loss_status', default=1, help='positive or negetive loss')
+    parser.add_argument('--loss_status', default=-1, help='positive or negetive loss')
     parser.add_argument('--hidden_dim', default=64, help='dimension of to_k')
     parser.add_argument('--slots_per_class', default=1, help='number of slot for each class')
     parser.add_argument('--vis', default=False, help='whether save slot visualization')
@@ -41,7 +41,7 @@ def get_args_parser():
                         help='path where to save, empty for no saving')
     parser.add_argument('--pre_dir', default='pre_model/',
                         help='path of pre-train model')
-    parser.add_argument('--device', default='cuda:0',
+    parser.add_argument('--device', default='cuda:1',
                         help='device to use for training / testing')
     parser.add_argument('--num_workers', default=4, type=int)
     parser.add_argument('--start_epoch', default=0, type=int, metavar='N', help='start epoch')
@@ -104,7 +104,7 @@ def main(args):
         train_one_epoch(model, optimizer, data_loader_train, device, criterion, record, epoch)
         lr_scheduler.step()
         if args.output_dir:
-            checkpoint_paths = [output_dir / 'checkpoint.pth']
+            checkpoint_paths = [output_dir / (f"{'use_slot_' if args.use_slot else 'no_slot_'}" + f"{'negetive_' if args.use_slot and args.loss_status != 1 else ''}" + 'checkpoint.pth')]
             # extra checkpoint before LR drop and every 100 epochs
             if (epoch + 1) % args.lr_drop == 0 or (epoch + 1) % 10 == 0:
                 checkpoint_paths.append(output_dir / (f"{'use_slot_' if args.use_slot else 'no_slot_'}" + f"{'negetive_' if args.use_slot and args.loss_status != 1 else ''}" + f'checkpoint{epoch:04}.pth'))

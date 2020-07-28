@@ -51,10 +51,6 @@ def main():
     parser = argparse.ArgumentParser('model training and evaluation script', parents=[get_args_parser()])
     args = parser.parse_args()
     device = torch.device(args.device)
-
-    transform=transforms.Compose([
-        transforms.ToTensor(),
-    ])
     image_path = os.path.join(args.dataset_dir, "images", "024.Red_faced_Cormorant", "Red_Faced_Cormorant_0007_796280.jpg")
     image_orl = Image.open(image_path).convert('RGB')
     image = np.array(image_orl.resize((260, 260), Image.BILINEAR))
@@ -69,33 +65,6 @@ def main():
     model.load_state_dict(checkpoint["model"])
 
     test(args, model, device, image_orl, image, vis_id=args.vis_id)
-
-
-class DC_Dataset(Dataset):
-    """Face Landmarks dataset."""
-
-    def __init__(self, root_dir, transform=None, for_train=True):
-        self.transform = transform
-
-        images = sorted(os.listdir(root_dir))
-        self.images = [os.path.join(root_dir, image) for image in images]
-        self.size = (512, 512)#Image.open(self.images[0]).size
-        if for_train:
-            self.images = self.images[:-2000]
-        else:
-            self.images = self.images[-2000:]
-
-    def __len__(self):
-        return len(self.images)
-
-    def __getitem__(self, idx):
-        image = Image.open(self.images[idx]).resize(self.size)
-        label = 0 if 'dog' in os.path.basename(self.images[idx]) else 1
-
-        if self.transform:
-            image = self.transform(image)
-
-        return image, label
 
 
 if __name__ == '__main__':

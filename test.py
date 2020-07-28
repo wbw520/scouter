@@ -47,18 +47,24 @@ def test(args, model, device, img, image, vis_id):
 
 
 def main():
-    # Training settings
     parser = argparse.ArgumentParser('model training and evaluation script', parents=[get_args_parser()])
     args = parser.parse_args()
+    model_name = "use_slot_negetive_checkpoint0149.pth"
+    args.use_pre = False
+    if "negetive" in model_name:
+        args.loss_status = -1
+    else:
+        args.loss_status = 1
+
     device = torch.device(args.device)
     image_path = os.path.join(args.dataset_dir, "images", "024.Red_faced_Cormorant", "Red_Faced_Cormorant_0007_796280.jpg")
     image_orl = Image.open(image_path).convert('RGB')
-    image = np.array(image_orl.resize((260, 260), Image.BILINEAR))
+    image = np.array(image_orl.resize((args.img_size, args.img_size), Image.BILINEAR))
     image = make_video_transform("val")(image)
 
     model = SlotModel(args)
     # Map model to be loaded to specified single gpu.
-    checkpoint = torch.load("saved_model/use_slot_negetive_checkpoint0149.pth", map_location="cuda:0")
+    checkpoint = torch.load("saved_model/" + model_name, map_location="cuda:0")
     # new_state_dict = OrderedDict()
     for k, v in checkpoint.items():
         print(k)

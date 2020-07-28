@@ -17,17 +17,18 @@ def get_args_parser():
 
     # training set
     parser.add_argument('--lr', default=0.0001, type=float)
-    parser.add_argument('--lr_drop', default=50, type=int)
+    parser.add_argument('--lr_drop', default=70, type=int)
     parser.add_argument('--batch_size', default=64, type=int)
     parser.add_argument('--weight_decay', default=0.0001, type=float)
     parser.add_argument('--epochs', default=150, type=int)
-    parser.add_argument("--num_classes", default=70, type=int)
+    parser.add_argument("--num_classes", default=50, type=int)
     parser.add_argument('--img_size', default=260, help='path for save data')
     parser.add_argument('--pre_trained', default=True, help='whether use pre parameter for backbone')
-    parser.add_argument('--use_slot', default=True, help='whether use slot module')
+    parser.add_argument('--use_slot', default=False, help='whether use slot module')
+    parser.add_argument('--use_pre', default=True, help='whether use pre dataset parameter')
 
     # slot setting
-    parser.add_argument('--loss_status', default=-1, help='positive or negetive loss')
+    parser.add_argument('--loss_status', default=1, help='positive or negetive loss')
     parser.add_argument('--hidden_dim', default=64, help='dimension of to_k')
     parser.add_argument('--slots_per_class', default=1, help='number of slot for each class')
     parser.add_argument('--vis', default=False, help='whether save slot visualization')
@@ -40,7 +41,7 @@ def get_args_parser():
                         help='path where to save, empty for no saving')
     parser.add_argument('--pre_dir', default='pre_model/',
                         help='path of pre-train model')
-    parser.add_argument('--device', default='cuda:1',
+    parser.add_argument('--device', default='cuda:0',
                         help='device to use for training / testing')
     parser.add_argument('--num_workers', default=4, type=int)
     parser.add_argument('--start_epoch', default=0, type=int, metavar='N', help='start epoch')
@@ -118,8 +119,8 @@ def main(args):
 
         evaluate(model, data_loader_val, device, criterion, record, epoch)
 
-        # print("train loss:", record["train"]["loss"])
-        # print("val loss:", record["val"]["loss"])
+        print("train loss:", record["train"]["loss"])
+        print("val loss:", record["val"]["loss"])
         print("train acc_1:", record["train"]["acc_1"])
         print("val acc_1:", record["val"]["acc_1"])
         print("train acc_5:", record["train"]["acc_5"])

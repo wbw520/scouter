@@ -4,6 +4,7 @@ import torch.nn.functional as F
 from sloter.utils.slot_attention import SlotAttention
 from sloter.utils.position_encode import build_position_encoding
 from timm.models import create_model
+from collections import OrderedDict
 import argparse
 
 
@@ -22,6 +23,14 @@ def load_backbone(args):
         num_classes=args.num_classes)
     # bone = nn.Sequential(*list(bone.children())[:-2])
     if args.use_slot:
+        if args.use_pre:
+            checkpoint = torch.load("saved_model/no_slot_checkpoint0119.pth")
+            new_state_dict = OrderedDict()
+            for k, v in checkpoint["model"].items():
+                name = k[9:] # remove `backbone.`
+                new_state_dict[name] = v
+            bone.load_state_dict(new_state_dict)
+            print("load pre dataset parameter over")
         bone.global_pool = Identical()
         bone.fc = Identical()
     return bone
@@ -42,7 +51,7 @@ class SlotModel(nn.Module):
 
     def dfs_freeze(self, model):
         for name, child in model.named_children():
-            if "layer4" in name:
+            if "layer3" in name or "layer4" in name:
                 continue
             for param in child.parameters():
                 param.requires_grad = False

@@ -1,2 +1,5 @@
 # Project exclude paths
 /venv/
+saved_model/
+.idea/
+sloter/vis/

@@ -21,21 +21,21 @@ def get_args_parser():
     parser.add_argument('--batch_size', default=64, type=int)
     parser.add_argument('--weight_decay', default=0.0001, type=float)
     parser.add_argument('--epochs', default=150, type=int)
-    parser.add_argument("--num_classes", default=50, type=int)
+    parser.add_argument("--num_classes", default=25, type=int)
     parser.add_argument('--img_size', default=260, help='path for save data')
     parser.add_argument('--pre_trained', default=True, help='whether use pre parameter for backbone')
     parser.add_argument('--use_slot', default=True, help='whether use slot module')
-    parser.add_argument('--use_pre', default=False, help='whether use pre dataset parameter')
+    parser.add_argument('--use_pre', default=True, help='whether use pre dataset parameter')
 
     # slot setting
-    parser.add_argument('--loss_status', default=-1, help='positive or negetive loss')
+    parser.add_argument('--loss_status', default=1, help='positive or negative loss')
     parser.add_argument('--hidden_dim', default=64, help='dimension of to_k')
     parser.add_argument('--slots_per_class', default=1, help='number of slot for each class')
     parser.add_argument('--vis', default=True, help='whether save slot visualization')
     parser.add_argument('--vis_id', default=0, help='choose image to visualization')
 
     # data/machine set
-    parser.add_argument('--dataset_dir', default='/home/wbw/PAN/bird_200/CUB_200_2011/CUB_200_2011/',
+    parser.add_argument('--dataset_dir', default='/home/wangbowen/data/bird_200/CUB_200_2011/CUB_200_2011/',
                         help='path for save data')
     parser.add_argument('--output_dir', default='saved_model/',
                         help='path where to save, empty for no saving')
@@ -59,7 +59,7 @@ def main(args):
     device = torch.device(args.device)
 
     model = SlotModel(args)
-    print("train model" + f"{'use slot' if args.use_slot else 'without slot'}" + f"{'negetive loss' if args.use_slot and args.loss_status != 1 else 'positive loss'}")
+    print("train model" + f"{'use slot' if args.use_slot else 'without slot'}" + f"{'negative loss' if args.use_slot and args.loss_status != 1 else 'positive loss'}")
     model.to(device)
     model_without_ddp = model
 
@@ -105,10 +105,10 @@ def main(args):
         train_one_epoch(model, optimizer, data_loader_train, device, criterion, record, epoch)
         lr_scheduler.step()
         if args.output_dir:
-            checkpoint_paths = [output_dir / (f"{'use_slot_' if args.use_slot else 'no_slot_'}" + f"{'negetive_' if args.use_slot and args.loss_status != 1 else ''}" + 'checkpoint.pth')]
+            checkpoint_paths = [output_dir / (f"{'use_slot_' if args.use_slot else 'no_slot_'}" + f"{'negative_' if args.use_slot and args.loss_status != 1 else ''}" + 'checkpoint.pth')]
             # extra checkpoint before LR drop and every 100 epochs
             if (epoch + 1) % args.lr_drop == 0 or (epoch + 1) % 10 == 0:
-                checkpoint_paths.append(output_dir / (f"{'use_slot_' if args.use_slot else 'no_slot_'}" + f"{'negetive_' if args.use_slot and args.loss_status != 1 else ''}" + f'checkpoint{epoch:04}.pth'))
+                checkpoint_paths.append(output_dir / (f"{'use_slot_' if args.use_slot else 'no_slot_'}" + f"{'negative_' if args.use_slot and args.loss_status != 1 else ''}" + f'checkpoint{epoch:04}.pth'))
             for checkpoint_path in checkpoint_paths:
                 prt.save_on_master({
                     'model': model_without_ddp.state_dict(),

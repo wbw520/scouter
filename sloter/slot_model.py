@@ -21,15 +21,10 @@ def load_backbone(args):
         args.model,
         pretrained=args.pre_trained,
         num_classes=args.num_classes)
-    # bone = nn.Sequential(*list(bone.children())[:-2])
     if args.use_slot:
         if args.use_pre:
-            checkpoint = torch.load("saved_model/no_slot_checkpoint0119.pth")
-            new_state_dict = OrderedDict()
-            for k, v in checkpoint["model"].items():
-                name = k[9:] # remove `backbone.`
-                new_state_dict[name] = v
-            bone.load_state_dict(new_state_dict)
+            checkpoint = torch.load("saved_model/no_slot_checkpoint.pth")
+            bone.load_state_dict(checkpoint, map_location=args.device)
             print("load pre dataset parameter over")
         bone.global_pool = Identical()
         bone.fc = Identical()
@@ -89,6 +84,13 @@ class SlotModel(nn.Module):
             return [output, loss]
 
         return output
+
+
+def load_model(args):
+    if args.use_slot:
+        return load_backbone(args)
+    else:
+        return SlotModel(args)
 
 
 # def get_args_parser():

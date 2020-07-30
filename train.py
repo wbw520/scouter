@@ -6,7 +6,7 @@ import tools.prepare_things as prt
 from engine import train_one_epoch, evaluate
 import tools.data_loader as bird
 from tools.data_loader import DataLoaderX
-from sloter.slot_model import SlotModel
+from sloter.slot_model import load_model
 import datetime
 import time
 
@@ -58,7 +58,7 @@ def main(args):
     prt.init_distributed_mode(args)
     device = torch.device(args.device)
 
-    model = SlotModel(args)
+    model = load_model(args)
     print("train model" + f"{'use slot' if args.use_slot else 'without slot'}" + f"{'negetive loss' if args.use_slot and args.loss_status != 1 else 'positive loss'}")
     model.to(device)
     model_without_ddp = model

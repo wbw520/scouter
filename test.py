@@ -48,9 +48,9 @@ def test(args, model, device, img, image, vis_id):
 def main():
     parser = argparse.ArgumentParser('model training and evaluation script', parents=[get_args_parser()])
     args = parser.parse_args()
-    model_name = "use_slot_negetive_checkpoint0149.pth"
+    model_name = "use_slot_negative_checkpoint.pth"
     args.use_pre = False
-    if "negetive" in model_name:
+    if "negative" in model_name:
         args.loss_status = -1
     else:
         args.loss_status = 1

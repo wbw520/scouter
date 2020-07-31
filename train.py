@@ -21,7 +21,7 @@ def get_args_parser():
     parser.add_argument('--batch_size', default=64, type=int)
     parser.add_argument('--weight_decay', default=0.0001, type=float)
     parser.add_argument('--epochs', default=150, type=int)
-    parser.add_argument("--num_classes", default=50, type=int)
+    parser.add_argument("--num_classes", default=25, type=int)
     parser.add_argument('--img_size', default=260, help='path for save data')
     parser.add_argument('--pre_trained', default=True, help='whether use pre parameter for backbone')
     parser.add_argument('--use_slot', default=True, help='whether use slot module')
@@ -105,10 +105,10 @@ def main(args):
         train_one_epoch(model, optimizer, data_loader_train, device, criterion, record, epoch)
         lr_scheduler.step()
         if args.output_dir:
-            checkpoint_paths = [output_dir / (f"{'use_slot_' if args.use_slot else 'no_slot_'}" + f"{'negetive_' if args.use_slot and args.loss_status != 1 else ''}" + 'checkpoint.pth')]
+            checkpoint_paths = [output_dir / (f"{'use_slot_' if args.use_slot else 'no_slot_'}" + f"{'negative_' if args.use_slot and args.loss_status != 1 else ''}" + 'checkpoint.pth')]
             # extra checkpoint before LR drop and every 100 epochs
             if (epoch + 1) % args.lr_drop == 0 or (epoch + 1) % 10 == 0:
-                checkpoint_paths.append(output_dir / (f"{'use_slot_' if args.use_slot else 'no_slot_'}" + f"{'negetive_' if args.use_slot and args.loss_status != 1 else ''}" + f'checkpoint{epoch:04}.pth'))
+                checkpoint_paths.append(output_dir / (f"{'use_slot_' if args.use_slot else 'no_slot_'}" + f"{'negative_' if args.use_slot and args.loss_status != 1 else ''}" + f'checkpoint{epoch:04}.pth'))
             for checkpoint_path in checkpoint_paths:
                 prt.save_on_master({
                     'model': model_without_ddp.state_dict(),

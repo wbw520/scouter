@@ -49,6 +49,7 @@ class SlotModel(nn.Module):
             self.slot = SlotAttention(args.num_classes, self.slots_per_class, args.hidden_dim, vis=args.vis,
                                          vis_id=args.vis_id, loss_status=args.loss_status, power=args.power, to_k_layer=args.to_k_layer)
             self.position_emb = build_position_encoding('sine', hidden_dim=args.hidden_dim)
+            self.lambda_value = float(args.lambda_value)
 
     def dfs_freeze(self, model):
         for name, child in model.named_children():
@@ -83,7 +84,7 @@ class SlotModel(nn.Module):
 
         if target is not None:
             if self.use_slot:
-                loss = F.nll_loss(output, target) + 1. * attn_loss
+                loss = F.nll_loss(output, target) + self.lambda_value * attn_loss
             else:
                 loss = F.nll_loss(output, target)
             return [output, loss]

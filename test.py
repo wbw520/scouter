@@ -11,7 +11,7 @@ import os, os.path
 import tools.data_loader as bird
 from collections import OrderedDict
 from sloter.utils.vis import apply_colormap_on_image
-from sloter.slot_model import load_model
+from sloter.slot_model import SlotModel
 from train import get_args_parser
 from tools.data_loader import make_video_transform
 
@@ -75,9 +75,9 @@ def main():
         ])
     image = transform(image[0])
 
-    model = load_model(args)
+    model = SlotModel(args)
     # Map model to be loaded to specified single gpu.
-    checkpoint = torch.load("saved_model/" + model_name, map_location="cuda:0")
+    checkpoint = torch.load("saved_model/" + model_name, map_location=args.device)
     # new_state_dict = OrderedDict()
     for k, v in checkpoint.items():
         print(k)

@@ -2,6 +2,8 @@ import torch
 import os
 import torch.distributed as dist
 from collections import defaultdict, deque
+from torch.utils.data import DataLoader
+from prefetch_generator import BackgroundGenerator
 
 
 def init_distributed_mode(args):
@@ -133,3 +135,8 @@ class SmoothedValue(object):
             global_avg=self.global_avg,
             max=self.max,
             value=self.value)
+
+
+class DataLoaderX(DataLoader):
+    def __iter__(self):
+        return BackgroundGenerator(super().__iter__())

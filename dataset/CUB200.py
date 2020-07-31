@@ -1,8 +1,6 @@
 from PIL import Image
 from torch.utils.data import Dataset, DataLoader
 from prefetch_generator import BackgroundGenerator
-import tools.transform_func as T
-import argparse
 import os
 import torch
 import numpy as np
@@ -77,57 +75,14 @@ class CUB_200(Dataset):
         img = Image.open(image_path)
         if img.mode == 'L':
             img = img.convert('RGB')
-        img = np.array(img.resize((self.size, self.size), Image.BILINEAR))
         label = int(label) - 1
         label = torch.from_numpy(np.array(label))
         if self.transform_ is not None:
             img = self.transform_(img)
-        return {"image": img, "label": label, "path": image_path}
+        return {"image": img, "label": label}
 
     def __len__(self):
         if self.train:
             return len(self._train_ids)
         else:
             return len(self._test_ids)
-
-
-def make_video_transform(mode):
-    normalize = T.Compose([
-            T.ToTensor(),
-            T.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
-        ])
-
-    if mode == "train":
-        return T.Compose([
-            T.Aug(),
-            normalize,
-        ]
-        )
-    if mode == "val":
-        return T.Compose([
-            normalize,
-        ]
-        )
-    raise ValueError(f'unknown {mode}')
-
-
-# def get_args_parser():
-#     parser = argparse.ArgumentParser('Set bird model', add_help=False)
-#     parser.add_argument('--dataset_dir', default='/home/wbw/PAN/bird_200/CUB_200_2011',
-#                         help='path for save data')
-#     parser.add_argument('--img_size', default=224,
-#                         help='path for save data')
-#     return parser
-#
-#
-# if __name__ == '__main__':
-#     parser = argparse.ArgumentParser('model training and evaluation script', parents=[get_args_parser()])
-#     args = parser.parse_args()
-#     cub = CUB_200(args, train=True, transform=make_video_transform("train"))
-#     dataloaders = DataLoader(cub, batch_size=1, num_workers=1, shuffle=True)
-#     print(len(dataloaders))
-#     for i_batch, sample_batch in enumerate(dataloaders):
-#         inputs = sample_batch["image"]
-#         labels = sample_batch["label"]
-#         print(inputs.size(), labels)
-#         break

@@ -4,9 +4,9 @@ import torch
 from torch.utils.data import DistributedSampler
 import tools.prepare_things as prt
 from engine import train_one_epoch, evaluate
-import tools.data_loader as bird
-from tools.data_loader import DataLoaderX
-from sloter.slot_model import load_model
+from dataset.choose_dataset import select_dataset
+from tools.prepare_things import DataLoaderX
+from sloter.slot_model import SlotModel
 import datetime
 import time
 
@@ -16,7 +16,7 @@ from torchvision import datasets, transforms
 def get_args_parser():
     parser = argparse.ArgumentParser('Set 3D model', add_help=False)
     parser.add_argument('--model', default="resnet18", type=str)
-    parser.add_argument('--dataset', default="mnist", type=str)
+    parser.add_argument('--dataset', default="MNIST", type=str)
 
     # training set
     parser.add_argument('--lr', default=0.0001, type=float)
@@ -61,8 +61,8 @@ def main(args):
     prt.init_distributed_mode(args)
     device = torch.device(args.device)
 
-    model = load_model(args)
-    print("train model" + f"{'use slot' if args.use_slot else 'without slot'}" + f"{'negetive loss' if args.use_slot and args.loss_status != 1 else 'positive loss'}")
+    model = SlotModel(args)
+    print("train model: " + f"{'use slot ' if args.use_slot else 'without slot '}" + f"{'negetive loss' if args.use_slot and args.loss_status != 1 else 'positive loss'}")
     model.to(device)
     model_without_ddp = model
 
@@ -77,15 +77,7 @@ def main(args):
     criterion = torch.nn.CrossEntropyLoss()
     lr_scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=args.lr_drop)
 
-    # dataset_train = bird.CUB_200(args, train=True, transform=bird.make_video_transform("train"))
-    # dataset_val = bird.CUB_200(args, train=False, transform=bird.make_video_transform("val"))
-    transform=transforms.Compose([
-        transforms.Resize((args.img_size, args.img_size)),
-        transforms.ToTensor(),
-        transforms.Normalize((0.1307,), (0.3081,))
-        ])
-    dataset_train = datasets.MNIST('./data/mnist', train=True, download=True, transform=transform)
-    dataset_val = datasets.MNIST('./data/mnist', train=False, transform=transform)
+    dataset_train, dataset_val = select_dataset(args)
 
     if args.distributed:
         sampler_train = DistributedSampler(dataset_train)
@@ -94,10 +86,8 @@ def main(args):
         sampler_train = torch.utils.data.RandomSampler(dataset_train)
         sampler_val = torch.utils.data.SequentialSampler(dataset_val)
     batch_sampler_train = torch.utils.data.BatchSampler(sampler_train, args.batch_size, drop_last=True)
-    data_loader_train = torch.utils.data.DataLoader(dataset_train, batch_sampler=batch_sampler_train, num_workers=args.num_workers, pin_memory=True)
-    data_loader_val = torch.utils.data.DataLoader(dataset_val, args.batch_size, sampler=sampler_val, num_workers=args.num_workers, pin_memory=True)
-    # data_loader_train = DataLoaderX(dataset_train, batch_sampler=batch_sampler_train, num_workers=args.num_workers, pin_memory=True)
-    # data_loader_val = DataLoaderX(dataset_val, args.batch_size, sampler=sampler_val, num_workers=args.num_workers, pin_memory=True)
+    data_loader_train = DataLoaderX(dataset_train, batch_sampler=batch_sampler_train, num_workers=args.num_workers)
+    data_loader_val = DataLoaderX(dataset_val, args.batch_size, sampler=sampler_val, num_workers=args.num_workers)
     output_dir = Path(args.output_dir)
 
     if args.resume:

@@ -9,10 +9,8 @@ def train_one_epoch(model, optimizer, data_loader, device, criterion, record, ep
     running_corrects_1 = 0.0
     running_corrects_5 = 0.0
     for i_batch, sample_batch in enumerate(data_loader):
-        # inputs = sample_batch["image"].to(device, dtype=torch.float32)
-        # labels = sample_batch["label"].to(device, dtype=torch.int64)
-        inputs = sample_batch[0].to(device, dtype=torch.float32)
-        labels = sample_batch[1].to(device, dtype=torch.int64)
+        inputs = sample_batch["image"].to(device, dtype=torch.float32)
+        labels = sample_batch["label"].to(device, dtype=torch.int64)
         # zero the gradient parameter
         optimizer.zero_grad()
         logits, loss = model(inputs, labels)

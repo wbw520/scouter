@@ -21,10 +21,11 @@ def load_backbone(args):
         args.model,
         pretrained=args.pre_trained,
         num_classes=args.num_classes)
+    bone.conv1 = nn.Conv2d(1, 64, 3, stride=2, padding=1, bias=False)
     # bone = nn.Sequential(*list(bone.children())[:-2])
     if args.use_slot:
         if args.use_pre:
-            checkpoint = torch.load("saved_model/no_slot_checkpoint0119.pth")
+            checkpoint = torch.load(f"saved_model/{args.dataset}_no_slot_checkpoint.pth")
             new_state_dict = OrderedDict()
             for k, v in checkpoint["model"].items():
                 name = k[9:] # remove `backbone.`
@@ -43,7 +44,7 @@ class SlotModel(nn.Module):
         self.backbone = load_backbone(args)
         if self.use_slot:
             self.slots_per_class = args.slots_per_class
-            self.conv1x1 = nn.Conv2d(2048, args.hidden_dim, kernel_size=(1, 1), stride=(1, 1))
+            self.conv1x1 = nn.Conv2d(512, args.hidden_dim, kernel_size=(1, 1), stride=(1, 1))
             if args.pre_trained:
                 self.dfs_freeze(self.backbone)
             self.slot = SlotAttention(args.num_classes, self.slots_per_class, args.hidden_dim, vis=args.vis, vis_id=args.vis_id, loss_status=args.loss_status)
@@ -70,7 +71,7 @@ class SlotModel(nn.Module):
     def forward(self, x, target=None):
         x = self.backbone(x)
         if self.use_slot:
-            x = self.conv1x1(x.view(x.size(0), 2048, 9, 9))
+            x = self.conv1x1(x.view(x.size(0), 512, 9, 9))
             x = torch.relu(x)
             pe = self.position_emb(x)
             x_pe = x + pe
@@ -83,7 +84,7 @@ class SlotModel(nn.Module):
 
         if target is not None:
             if self.use_slot:
-                loss = F.nll_loss(output, target) + attn_loss
+                loss = F.nll_loss(output, target) + 1. * attn_loss
             else:
                 loss = F.nll_loss(output, target)
             return [output, loss]

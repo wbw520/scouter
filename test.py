@@ -15,6 +15,7 @@ from sloter.slot_model import SlotModel
 from train import get_args_parser
 from tools.data_loader import make_video_transform
 
+from torchvision import datasets, transforms
 
 def test(args, model, device, img, image, vis_id):
     model.to(device)
@@ -49,7 +50,7 @@ def test(args, model, device, img, image, vis_id):
 def main():
     parser = argparse.ArgumentParser('model training and evaluation script', parents=[get_args_parser()])
     args = parser.parse_args()
-    model_name = "use_slot_negative_checkpoint.pth"
+    model_name = f"{args.dataset}_use_slot_negative_checkpoint.pth"
     args.use_pre = False
     if "negative" in model_name:
         args.loss_status = -1
@@ -57,10 +58,23 @@ def main():
         args.loss_status = 1
 
     device = torch.device(args.device)
-    image_path = os.path.join(args.dataset_dir, "images", "024.Red_faced_Cormorant", "Red_Faced_Cormorant_0007_796280.jpg")
-    image_orl = Image.open(image_path).convert('RGB')
-    image = np.array(image_orl.resize((args.img_size, args.img_size), Image.BILINEAR))
-    image = make_video_transform("val")(image)
+    
+    transform = transforms.Compose([
+        transforms.Resize((args.img_size, args.img_size)),
+        transforms.ToTensor(),
+        ])
+    dataset_val = datasets.MNIST('./data/mnist', train=False, transform=transform)
+    data_loader_val = torch.utils.data.DataLoader(dataset_val, args.batch_size, shuffle=False, num_workers=1, pin_memory=True)
+    image = iter(data_loader_val).next()[0]
+    image_orl = Image.fromarray((image.cpu().detach().numpy()*255).astype(np.uint8)[0,0], mode='L')
+    # image_path = os.path.join(args.dataset_dir, "images", "024.Red_faced_Cormorant", "Red_Faced_Cormorant_0007_796280.jpg")
+    # image_orl = Image.open(image_path).convert('RGB')
+    # image = np.array(image_orl.resize((args.img_size, args.img_size), Image.BILINEAR))
+    # image = make_video_transform("val")(image)
+    transform = transforms.Compose([
+        transforms.Normalize((0.1307,), (0.3081,))
+        ])
+    image = transform(image[0])
 
     model = SlotModel(args)
     # Map model to be loaded to specified single gpu.

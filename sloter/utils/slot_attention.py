@@ -31,12 +31,14 @@ class SlotAttention(nn.Module):
         )
         self.to_k = nn.Sequential(
             nn.Linear(dim, dim),
-            nn.ReLU(inplace=True),
-            nn.Linear(dim, dim),
-            nn.ReLU(inplace=True),
-            nn.Linear(dim, dim),
+            # nn.ReLU(inplace=True),
+            # nn.Linear(dim, dim),
+            # nn.ReLU(inplace=True),
+            # nn.Linear(dim, dim),
         )
         self.gru = nn.GRU(dim, dim)
+
+        # self.channel_weights = nn.Parameter(torch.ones(1, 1, dim))
 
         self.vis = vis
         self.vis_id = vis_id
@@ -45,6 +47,8 @@ class SlotAttention(nn.Module):
         b, n, d = inputs.shape
         slots = self.initial_slots.expand(b, -1, -1)
         k, v = self.to_k(inputs), inputs
+
+        # channel_weights = torch.relu(self.channel_weights.expand(b, self.num_slots, -1))z
 
         for _ in range(self.iters):
             slots_prev = slots
@@ -70,7 +74,7 @@ class SlotAttention(nn.Module):
                 # print(slots_vis.shape)
 
         if self.vis:
-            print("hehe")
+            # print("hehe")
             # print(slots_vis.max())
             # slots_vis = torch.relu(slots_vis)
             if self.slots_per_class > 1:
@@ -85,7 +89,9 @@ class SlotAttention(nn.Module):
             for id, image in enumerate(slots_vis):
                 image = Image.fromarray(image, mode='L')
                 image.save(f'sloter/vis/slot_{id:d}.png')
-            print(slots_vis.shape)
+            # print(slots_vis.shape)
+            print(self.loss_status*torch.sum(attn.clone(), dim=2, keepdim=False))
+            print(self.loss_status*torch.sum(updates.clone(), dim=2, keepdim=False))
 
         if self.slots_per_class > 1:
             new_updates = torch.zeros((updates.size(0), self.num_classes, updates.size(-1)))
@@ -94,7 +100,10 @@ class SlotAttention(nn.Module):
             updates = new_updates.to(updates.device)
 
         attn_relu = torch.relu(attn)
-        slot_loss = torch.sum(attn_relu) / attn.size(0) / attn.size(1) / attn.size(2) * self.slots_per_class
+        slot_loss = torch.sum(attn_relu) / attn.size(0) / attn.size(1) / attn.size(2)# * self.slots_per_class
+
+        # updates_weighted_sum = torch.einsum('bid,bid->bi', updates, channel_weights)
+        # return self.loss_status*updates_weighted_sum, slot_loss
         return self.loss_status*torch.sum(updates, dim=2, keepdim=False), slot_loss
 
 

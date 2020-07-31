@@ -14,7 +14,7 @@ import time
 def get_args_parser():
     parser = argparse.ArgumentParser('Set 3D model', add_help=False)
     parser.add_argument('--model', default="resnet18", type=str)
-    parser.add_argument('--dataset', default="ConText", type=str)
+    parser.add_argument('--dataset', default="MNIST", type=str)
 
     # training set
     parser.add_argument('--lr', default=0.0001, type=float)
@@ -33,6 +33,7 @@ def get_args_parser():
     parser.add_argument('--loss_status', default=-1, help='positive or negative loss')
     parser.add_argument('--hidden_dim', default=64, help='dimension of to_k')
     parser.add_argument('--slots_per_class', default=3, help='number of slot for each class')
+    parser.add_argument('--power', default=2, help='number of slot for each class')
     parser.add_argument('--vis', default=False, help='whether save slot visualization')
     parser.add_argument('--vis_id', default=0, help='choose image to visualization')
 

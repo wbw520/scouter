@@ -41,10 +41,8 @@ def evaluate(model, data_loader, device, criterion, record, epoch):
     running_corrects_5 = 0.0
     print("start evaluate  " + str(epoch))
     for i_batch, sample_batch in enumerate(data_loader):
-        # inputs = sample_batch["image"].to(device, dtype=torch.float32)
-        # labels = sample_batch["label"].to(device, dtype=torch.int64)
-        inputs = sample_batch[0].to(device, dtype=torch.float32)
-        labels = sample_batch[1].to(device, dtype=torch.int64)
+        inputs = sample_batch["image"].to(device, dtype=torch.float32)
+        labels = sample_batch["label"].to(device, dtype=torch.int64)
 
         logits, loss = model(inputs, labels)
 

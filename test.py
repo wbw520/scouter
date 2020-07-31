@@ -6,10 +6,7 @@ from torchvision import datasets, transforms
 from PIL import Image
 import numpy as np
 from timm.models import create_model
-from torch.utils.data import Dataset
 import os, os.path
-from dataset.choose_dataset import select_dataset
-from collections import OrderedDict
 from sloter.utils.vis import apply_colormap_on_image
 from sloter.slot_model import SlotModel
 from train import get_args_parser

@@ -100,7 +100,8 @@ class Normalize(object):
 
 def make_transform(args, mode):
     normalize_value = {"MNIST": [[0.1307], [0.3081]],
-                       "CUB200": [[0.485, 0.456, 0.406], [0.229, 0.224, 0.225]]}
+                       "CUB200": [[0.485, 0.456, 0.406], [0.229, 0.224, 0.225]],
+                     "ConText": [[0.485, 0.456, 0.406], [0.229, 0.224, 0.225]]}
     selected_norm = normalize_value[args.dataset]
     normalize = Compose([
         ToTensor(),

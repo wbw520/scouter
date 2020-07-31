@@ -10,13 +10,11 @@ from sloter.slot_model import SlotModel
 import datetime
 import time
 
-from torchvision import datasets, transforms
-
 
 def get_args_parser():
     parser = argparse.ArgumentParser('Set 3D model', add_help=False)
     parser.add_argument('--model', default="resnet18", type=str)
-    parser.add_argument('--dataset', default="MNIST", type=str)
+    parser.add_argument('--dataset', default="ConText", type=str)
 
     # training set
     parser.add_argument('--lr', default=0.0001, type=float)
@@ -39,7 +37,9 @@ def get_args_parser():
     parser.add_argument('--vis_id', default=0, help='choose image to visualization')
 
     # data/machine set
-    parser.add_argument('--dataset_dir', default='/home/wbw/PAN/bird_200/CUB_200_2011/CUB_200_2011/',
+    # parser.add_argument('--dataset_dir', default='/home/wbw/PAN/bird_200/CUB_200_2011/CUB_200_2011/',
+    #                     help='path for save data')
+    parser.add_argument('--dataset_dir', default='/home/wbw/PAN/board_images/data/JPEGImages/',
                         help='path for save data')
     parser.add_argument('--output_dir', default='saved_model/',
                         help='path where to save, empty for no saving')

@@ -1,14 +1,8 @@
 from PIL import Image
-from torch.utils.data import Dataset, DataLoader
-from prefetch_generator import BackgroundGenerator
+from torch.utils.data import Dataset
 import os
 import torch
 import numpy as np
-
-
-class DataLoaderX(DataLoader):
-    def __iter__(self):
-        return BackgroundGenerator(super().__iter__())
 
 
 class CUB_200(Dataset):

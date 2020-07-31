@@ -2,4 +2,7 @@
 /venv/
 saved_model/
 .idea/
-sloter/vis/
+sloter/vis*/
+data/
+*.pyc
+.vscode/

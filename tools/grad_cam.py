@@ -62,7 +62,7 @@ class GradCam:
         self.model.eval()
         self.cuda = use_cuda
         if self.cuda:
-            self.model = model.cuda()
+            self.model = model.to(device)
 
         self.extractor = ModelOutputs(self.model, target_layer_names)
 
@@ -109,12 +109,12 @@ class GradCam:
 
 
 def image_deal(data_name):
-    device = torch.device(args.device)
-    image_path = os.path.join(args.dataset_dir, "images", "024.Red_faced_Cormorant", "Red_Faced_Cormorant_0007_796280.jpg")
+    image_path = os.path.join(args.dataset_dir, "inference", data_name)
     image_orl = Image.open(image_path).convert('RGB')
     image = np.array(image_orl.resize((args.img_size, args.img_size), Image.BILINEAR))
+    image = make_video_transform("val")(image)
     inputs = image.to(device, dtype=torch.float32)
-    return inputs, image
+    return inputs, image_orl
 
 
 def show_cam_on_image(imgs, masks):
@@ -151,6 +151,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser('model training and evaluation script', parents=[get_args_parser()])
     args = parser.parse_args()
     model_name = "use_slot_negetive_checkpoint0149.pth"
+    device = args.device
     init_model = create_model(
         args.model,
         pretrained=args.pre_trained,

@@ -29,6 +29,7 @@ def get_args_parser():
     parser.add_argument('--pre_trained', default=True, help='whether use pre parameter for backbone')
     parser.add_argument('--use_slot', default=True, help='whether use slot module')
     parser.add_argument('--use_pre', default=False, help='whether use pre dataset parameter')
+    parser.add_argument('--aug', default=True, help='whether use pre dataset parameter')
 
     # slot setting
     parser.add_argument('--loss_status', default=-1, help='positive or negative loss')

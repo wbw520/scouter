@@ -33,11 +33,17 @@ class Resize(object):
 
 class Aug(object):
     """class for preprocessing images. """
+    def __init__(self, aug):
+        self.aug = aug
+
     def __call__(self, image):
-        wbw = ImageAugment()   # ImageAugment class will augment the img and label at same time
-        seq = wbw.aug_sequence()
-        image_aug = wbw.aug(image, seq)
-        return image_aug
+        if self.aug:
+            ImgAug = ImageAugment()   # ImageAugment class will augment the img and label at same time
+            seq = ImgAug.aug_sequence()
+            image_aug = ImgAug.aug(image, seq)
+            return image_aug
+        else:
+            return image
 
     def __repr__(self):
         return self.__class__.__name__ + 'Augmentation function'
@@ -104,7 +110,7 @@ def make_transform(args, mode):
     if mode == "train":
         return Compose([
             Resize((args.img_size, args.img_size)),
-            Aug(),
+            Aug(args.aug),
             normalize,
         ]
         )

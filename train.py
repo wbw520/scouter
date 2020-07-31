@@ -31,7 +31,7 @@ def get_args_parser():
     parser.add_argument('--aug', default=False, help='whether use pre dataset parameter')
 
     # slot setting
-    parser.add_argument('--loss_status', default=-1, help='positive or negative loss')
+    parser.add_argument('--loss_status', default=1, help='positive or negative loss')
     parser.add_argument('--hidden_dim', default=64, help='dimension of to_k')
     parser.add_argument('--slots_per_class', default=3, help='number of slot for each class')
     parser.add_argument('--power', default=2, help='power of the slot loss')
@@ -105,7 +105,8 @@ def main(args):
 
     print("Start training")
     start_time = time.time()
-    record = MetricLog().record
+    log = MetricLog()
+    record = log.record
     for epoch in range(args.start_epoch, args.epochs):
         if args.distributed:
             sampler_train.set_epoch(epoch)
@@ -127,7 +128,7 @@ def main(args):
 
         evaluate(model, data_loader_val, device, record, epoch)
 
-        MetricLog().print_metric()
+        log.print_metric()
 
     total_time = time.time() - start_time
     total_time_str = str(datetime.timedelta(seconds=int(total_time)))

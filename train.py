@@ -7,6 +7,7 @@ from engine import train_one_epoch, evaluate
 from dataset.choose_dataset import select_dataset
 from tools.prepare_things import DataLoaderX
 from sloter.slot_model import SlotModel
+from tools.calculate_tool import MetricLog
 import datetime
 import time
 
@@ -101,12 +102,11 @@ def main(args):
 
     print("Start training")
     start_time = time.time()
-    record = {"train": {"loss": [], "acc_1": [], "acc_5": []},
-              "val": {"loss": [], "acc_1": [], "acc_5": []}}
+    record = MetricLog().record
     for epoch in range(args.start_epoch, args.epochs):
         if args.distributed:
             sampler_train.set_epoch(epoch)
-        train_one_epoch(model, optimizer, data_loader_train, device, criterion, record, epoch)
+        train_one_epoch(model, data_loader_train, device, record, epoch)
         lr_scheduler.step()
         if args.output_dir:
             checkpoint_paths = [output_dir / (f"{args.dataset}_" + f"{'use_slot_' if args.use_slot else 'no_slot_'}" + f"{'negative_' if args.use_slot and args.loss_status != 1 else ''}" + 'checkpoint.pth')]
@@ -124,12 +124,7 @@ def main(args):
 
         evaluate(model, data_loader_val, device, criterion, record, epoch)
 
-        print("train loss:", record["train"]["loss"])
-        print("val loss:", record["val"]["loss"])
-        print("train acc_1:", record["train"]["acc_1"])
-        print("val acc_1:", record["val"]["acc_1"])
-        print("train acc_5:", record["train"]["acc_5"])
-        print("val acc_5:", record["val"]["acc_5"])
+        MetricLog().print_metric()
 
     total_time = time.time() - start_time
     total_time_str = str(datetime.timedelta(seconds=int(total_time)))

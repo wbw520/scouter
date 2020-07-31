@@ -7,7 +7,7 @@ import torch.nn.functional as F
 
 
 class SlotAttention(nn.Module):
-    def __init__(self, num_classes, slots_per_class, dim, iters=3, eps=1e-8, vis=False, vis_id=0, loss_status=1):
+    def __init__(self, num_classes, slots_per_class, dim, iters=3, eps=1e-8, vis=False, vis_id=0, loss_status=1, power=1, to_k_layer=1):
         super().__init__()
         self.num_classes = num_classes
         self.slots_per_class = slots_per_class
@@ -29,12 +29,13 @@ class SlotAttention(nn.Module):
         self.to_q = nn.Sequential(
             nn.Linear(dim, dim),
         )
+        to_k_layer_list = [nn.Linear(dim, dim)]
+        for to_k_layer_id in range(1, to_k_layer):
+            to_k_layer_list.append(nn.ReLU(inplace=True))
+            to_k_layer_list.append(nn.Linear(dim, dim))
+        
         self.to_k = nn.Sequential(
-            nn.Linear(dim, dim),
-            # nn.ReLU(inplace=True),
-            # nn.Linear(dim, dim),
-            # nn.ReLU(inplace=True),
-            # nn.Linear(dim, dim),
+            *to_k_layer_list
         )
         self.gru = nn.GRU(dim, dim)
 
@@ -42,6 +43,7 @@ class SlotAttention(nn.Module):
 
         self.vis = vis
         self.vis_id = vis_id
+        self.power = power
 
     def forward(self, inputs, inputs_x):
         b, n, d = inputs.shape
@@ -104,7 +106,7 @@ class SlotAttention(nn.Module):
 
         # updates_weighted_sum = torch.einsum('bid,bid->bi', updates, channel_weights)
         # return self.loss_status*updates_weighted_sum, slot_loss
-        return self.loss_status*torch.sum(updates, dim=2, keepdim=False), slot_loss
+        return self.loss_status*torch.sum(updates, dim=2, keepdim=False), torch.pow(slot_loss, self.power)
 
 
 class PositionEmbeddingSine(nn.Module):

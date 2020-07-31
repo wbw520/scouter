@@ -1,5 +1,5 @@
 import torch
-from image_aug import ImageAugment
+from tools.image_aug import ImageAugment
 import torchvision.transforms.functional as F
 from collections.abc import Sequence, Iterable
 import numpy as np

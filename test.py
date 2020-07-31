@@ -11,7 +11,7 @@ import os, os.path
 import tools.data_loader as bird
 from collections import OrderedDict
 from sloter.utils.vis import apply_colormap_on_image
-from sloter.slot_model import SlotModel
+from sloter.slot_model import load_model
 from train import get_args_parser
 from tools.data_loader import make_video_transform
 
@@ -32,7 +32,6 @@ def test(args, model, device, img, image, vis_id):
     print(torch.argmax(output[vis_id]).item())
     model.train()
     # grad_cam = GradCam(model, target_layer='conv2', cam_extractor=CamExtractor)
-    trans = transforms.ToTensor()
 
     for id in range(args.num_classes):
         image_raw = Image.open('sloter/vis/image.png').convert('RGB')
@@ -76,7 +75,7 @@ def main():
         ])
     image = transform(image[0])
 
-    model = SlotModel(args)
+    model = load_model(args)
     # Map model to be loaded to specified single gpu.
     checkpoint = torch.load("saved_model/" + model_name, map_location="cuda:0")
     # new_state_dict = OrderedDict()

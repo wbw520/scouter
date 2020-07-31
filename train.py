@@ -6,7 +6,7 @@ import tools.prepare_things as prt
 from engine import train_one_epoch, evaluate
 import tools.data_loader as bird
 from tools.data_loader import DataLoaderX
-from sloter.slot_model import SlotModel
+from sloter.slot_model import load_model
 import datetime
 import time
 
@@ -28,7 +28,7 @@ def get_args_parser():
     parser.add_argument('--img_size', default=260, help='path for save data')
     parser.add_argument('--pre_trained', default=True, help='whether use pre parameter for backbone')
     parser.add_argument('--use_slot', default=True, help='whether use slot module')
-    parser.add_argument('--use_pre', default=True, help='whether use pre dataset parameter')
+    parser.add_argument('--use_pre', default=False, help='whether use pre dataset parameter')
 
     # slot setting
     parser.add_argument('--loss_status', default=-1, help='positive or negative loss')
@@ -38,7 +38,7 @@ def get_args_parser():
     parser.add_argument('--vis_id', default=0, help='choose image to visualization')
 
     # data/machine set
-    parser.add_argument('--dataset_dir', default='/home/wangbowen/data/bird_200/CUB_200_2011/CUB_200_2011/',
+    parser.add_argument('--dataset_dir', default='/home/wbw/PAN/bird_200/CUB_200_2011/CUB_200_2011/',
                         help='path for save data')
     parser.add_argument('--output_dir', default='saved_model/',
                         help='path where to save, empty for no saving')
@@ -61,8 +61,8 @@ def main(args):
     prt.init_distributed_mode(args)
     device = torch.device(args.device)
 
-    model = SlotModel(args)
-    print("train model" + f"{'use slot' if args.use_slot else 'without slot'}" + f"{'negative loss' if args.use_slot and args.loss_status != 1 else 'positive loss'}")
+    model = load_model(args)
+    print("train model" + f"{'use slot' if args.use_slot else 'without slot'}" + f"{'negetive loss' if args.use_slot and args.loss_status != 1 else 'positive loss'}")
     model.to(device)
     model_without_ddp = model
 

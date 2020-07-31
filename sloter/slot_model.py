@@ -92,6 +92,13 @@ class SlotModel(nn.Module):
         return output
 
 
+def load_model(args):
+    if args.use_slot:
+        return load_backbone(args)
+    else:
+        return SlotModel(args)
+
+
 # def get_args_parser():
 #     parser = argparse.ArgumentParser('Set bird model', add_help=False)
 #     parser.add_argument('--dataset_dir', default='/home/wbw/PAN/bird_200/CUB_200_2011',

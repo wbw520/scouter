@@ -110,7 +110,7 @@ def main(args):
     for epoch in range(args.start_epoch, args.epochs):
         if args.distributed:
             sampler_train.set_epoch(epoch)
-        train_one_epoch(model, data_loader_train, device, record, epoch)
+        train_one_epoch(model, data_loader_train, optimizer, device, record, epoch)
         lr_scheduler.step()
         if args.output_dir:
             checkpoint_paths = [output_dir / (f"{args.dataset}_" + f"{'use_slot_' if args.use_slot else 'no_slot_'}" + f"{'negative_' if args.use_slot and args.loss_status != 1 else ''}" + 'checkpoint.pth')]

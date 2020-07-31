@@ -73,7 +73,7 @@ class CUB_200(Dataset):
         label = torch.from_numpy(np.array(label))
         if self.transform_ is not None:
             img = self.transform_(img)
-        return {"image": img, "label": label}
+        return {"image": img, "label": label, "names": image_path}
 
     def __len__(self):
         if self.train:

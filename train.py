@@ -125,7 +125,7 @@ def main(args):
                     'args': args,
                 }, checkpoint_path)
 
-        evaluate(model, data_loader_val, device, criterion, record, epoch)
+        evaluate(model, data_loader_val, device, record, epoch)
 
         MetricLog().print_metric()
 

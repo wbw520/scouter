@@ -5,7 +5,6 @@ from sloter.utils.slot_attention import SlotAttention
 from sloter.utils.position_encode import build_position_encoding
 from timm.models import create_model
 from collections import OrderedDict
-import argparse
 
 
 class Identical(nn.Module):
@@ -21,8 +20,8 @@ def load_backbone(args):
         args.model,
         pretrained=args.pre_trained,
         num_classes=args.num_classes)
-    bone.conv1 = nn.Conv2d(1, 64, 3, stride=2, padding=1, bias=False)
-    # bone = nn.Sequential(*list(bone.children())[:-2])
+    if args.dataset == "MNIST":
+        bone.conv1 = nn.Conv2d(1, 64, 3, stride=2, padding=1, bias=False)
     if args.use_slot:
         if args.use_pre:
             checkpoint = torch.load(f"saved_model/{args.dataset}_no_slot_checkpoint.pth")
@@ -63,7 +62,6 @@ class SlotModel(nn.Module):
             if 'bn' not in name:
                 self.dfs_freeze_bnorm(child)
                 continue
-            # print(name)
             for param in child.parameters():
                 param.requires_grad = False
             self.dfs_freeze_bnorm(child)

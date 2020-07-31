@@ -23,5 +23,5 @@ class MetricLog():
     def print_metric(self):
         print("train loss:", self.record["train"]["loss"])
         print("val loss:", self.record["val"]["loss"])
-        print("train acc:", self.record["train"]["acc_1"])
-        print("val acc:", self.record["val"]["acc_1"])
+        print("train acc:", self.record["train"]["acc"])
+        print("val acc:", self.record["val"]["acc"])

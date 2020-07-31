@@ -140,3 +140,11 @@ class SmoothedValue(object):
 class DataLoaderX(DataLoader):
     def __iter__(self):
         return BackgroundGenerator(super().__iter__())
+
+
+def get_name(root, mode_folder=True):
+    for root, dirs, file in os.walk(root):
+        if mode_folder:
+            return sorted(dirs)
+        else:
+            return sorted(file)

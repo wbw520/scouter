@@ -46,7 +46,8 @@ class SlotModel(nn.Module):
             self.conv1x1 = nn.Conv2d(512, args.hidden_dim, kernel_size=(1, 1), stride=(1, 1))
             if args.pre_trained:
                 self.dfs_freeze(self.backbone)
-            self.slot = SlotAttention(args.num_classes, self.slots_per_class, args.hidden_dim, vis=args.vis, vis_id=args.vis_id, loss_status=args.loss_status, power=args.power)
+            self.slot = SlotAttention(args.num_classes, self.slots_per_class, args.hidden_dim, vis=args.vis,
+                                         vis_id=args.vis_id, loss_status=args.loss_status, power=args.power, to_k_layer=args.to_k_layer)
             self.position_emb = build_position_encoding('sine', hidden_dim=args.hidden_dim)
 
     def dfs_freeze(self, model):

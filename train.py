@@ -27,13 +27,14 @@ def get_args_parser():
     parser.add_argument('--pre_trained', default=True, help='whether use pre parameter for backbone')
     parser.add_argument('--use_slot', default=True, help='whether use slot module')
     parser.add_argument('--use_pre', default=False, help='whether use pre dataset parameter')
-    parser.add_argument('--aug', default=True, help='whether use pre dataset parameter')
+    parser.add_argument('--aug', default=False, help='whether use pre dataset parameter')
 
     # slot setting
     parser.add_argument('--loss_status', default=-1, help='positive or negative loss')
     parser.add_argument('--hidden_dim', default=64, help='dimension of to_k')
     parser.add_argument('--slots_per_class', default=3, help='number of slot for each class')
     parser.add_argument('--power', default=2, help='number of slot for each class')
+    parser.add_argument('--to_k_layer', default=1, help='number of slot for each class')
     parser.add_argument('--vis', default=False, help='whether save slot visualization')
     parser.add_argument('--vis_id', default=0, help='choose image to visualization')
 

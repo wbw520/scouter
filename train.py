@@ -49,7 +49,7 @@ def get_args_parser():
                         help='path where to save, empty for no saving')
     parser.add_argument('--pre_dir', default='pre_model/',
                         help='path of pre-train model')
-    parser.add_argument('--device', default='cuda:0',
+    parser.add_argument('--device', default='cuda',
                         help='device to use for training / testing')
     parser.add_argument('--num_workers', default=4, type=int)
     parser.add_argument('--start_epoch', default=0, type=int, metavar='N', help='start epoch')
@@ -58,6 +58,7 @@ def get_args_parser():
     # distributed training parameters
     parser.add_argument('--world_size', default=1, type=int,
                         help='number of distributed processes')
+    parser.add_argument("--local_rank", type=int)
     parser.add_argument('--dist_url', default='env://', help='url used to set up distributed training')
     return parser
 
@@ -72,7 +73,7 @@ def main(args):
     model_without_ddp = model
 
     if args.distributed:
-        model = torch.nn.parallel.DistributedDataParallel(model, device_ids=[args.gpu])
+        model = torch.nn.parallel.DistributedDataParallel(model, device_ids=[args.gpu], find_unused_parameters=True)
         model_without_ddp = model.module
     n_parameters = sum(p.numel() for p in model.parameters() if p.requires_grad)
     print('number of params:', n_parameters)
@@ -114,7 +115,7 @@ def main(args):
         lr_scheduler.step()
         if args.output_dir:
             checkpoint_paths = [output_dir / (f"{args.dataset}_" + f"{'use_slot_' if args.use_slot else 'no_slot_'}" + f"{'negative_' if args.use_slot and args.loss_status != 1 else ''}" + 'checkpoint.pth')]
-            # extra checkpoint before LR drop and every 100 epochs
+            # extra checkpoint before LR drop and every 10 epochs
             if (epoch + 1) % args.lr_drop == 0 or (epoch + 1) % 10 == 0:
                 checkpoint_paths.append(output_dir / (f"{args.dataset}_" + f"{'use_slot_' if args.use_slot else 'no_slot_'}" + f"{'negative_' if args.use_slot and args.loss_status != 1 else ''}" + f'checkpoint{epoch:04}.pth'))
             for checkpoint_path in checkpoint_paths:

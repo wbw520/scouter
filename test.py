@@ -35,7 +35,7 @@ def test(args, model, device, img, image, vis_id):
         # image_raw_cam = Image.open('vis/image.png')
         slot_image = np.array(Image.open(f'sloter/vis/slot_{id}.png').resize(image_raw.size, resample=Image.BILINEAR), dtype=np.uint8)
 
-        heatmap_only, heatmap_on_image = apply_colormap_on_image(image_raw, slot_image, 'gist_rainbow_r')
+        heatmap_only, heatmap_on_image = apply_colormap_on_image(image_raw, slot_image, 'jet')
         heatmap_on_image.save(f'sloter/vis/slot_mask_{id}.png')
 
         # if id < 10:

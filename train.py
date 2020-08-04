@@ -31,14 +31,14 @@ def get_args_parser():
     parser.add_argument('--aug', default=False, help='whether use pre dataset parameter')
 
     # slot setting
-    parser.add_argument('--loss_status', default=1, help='positive or negative loss')
-    parser.add_argument('--hidden_dim', default=64, help='dimension of to_k')
-    parser.add_argument('--slots_per_class', default=3, help='number of slot for each class')
-    parser.add_argument('--power', default=2, help='power of the slot loss')
-    parser.add_argument('--to_k_layer', default=1, help='number of layers in to_k')
-    parser.add_argument('--lambda_value', default=1., help='lambda of slot loss')
+    parser.add_argument('--loss_status', default=1, type=int, help='positive or negative loss')
+    parser.add_argument('--hidden_dim', default=64, type=int, help='dimension of to_k')
+    parser.add_argument('--slots_per_class', default=3, type=int, help='number of slot for each class')
+    parser.add_argument('--power', default=2, type=int, help='power of the slot loss')
+    parser.add_argument('--to_k_layer', default=1, type=int, help='number of layers in to_k')
+    parser.add_argument('--lambda_value', default=1., type=float, help='lambda of slot loss')
     parser.add_argument('--vis', default=False, help='whether save slot visualization')
-    parser.add_argument('--vis_id', default=0, help='choose image to visualization')
+    parser.add_argument('--vis_id', default=0, type=int, help='choose image to visualization')
 
     # data/machine set
     # parser.add_argument('--dataset_dir', default='/home/wbw/PAN/bird_200/CUB_200_2011/CUB_200_2011/',

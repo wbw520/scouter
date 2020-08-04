@@ -13,6 +13,14 @@ import time
 
 
 def get_args_parser():
+    def str2bool(v):
+        if v.lower() in ('yes', 'true', 't', 'y', '1'):
+            return True
+        elif v.lower() in ('no', 'false', 'f', 'n', '0'):
+            return False
+        else:
+            raise argparse.ArgumentTypeError('Unsupported value encountered.')
+
     parser = argparse.ArgumentParser('Set 3D model', add_help=False)
     parser.add_argument('--model', default="resnet18", type=str)
     parser.add_argument('--dataset', default="MNIST", type=str)
@@ -26,10 +34,10 @@ def get_args_parser():
     parser.add_argument('--epochs', default=10, type=int)
     parser.add_argument("--num_classes", default=10, type=int)
     parser.add_argument('--img_size', default=260, help='path for save data')
-    parser.add_argument('--pre_trained', default=True, help='whether use pre parameter for backbone')
-    parser.add_argument('--use_slot', default=True, help='whether use slot module')
-    parser.add_argument('--use_pre', default=False, help='whether use pre dataset parameter')
-    parser.add_argument('--aug', default=False, help='whether use pre dataset parameter')
+    parser.add_argument('--pre_trained', default=True, type=str2bool, help='whether use pre parameter for backbone')
+    parser.add_argument('--use_slot', default=True, type=str2bool, help='whether use slot module')
+    parser.add_argument('--use_pre', default=False, type=str2bool, help='whether use pre dataset parameter')
+    parser.add_argument('--aug', default=False, type=str2bool, help='whether use pre dataset parameter')
 
     # slot setting
     parser.add_argument('--loss_status', default=1, type=int, help='positive or negative loss')
@@ -38,7 +46,7 @@ def get_args_parser():
     parser.add_argument('--power', default=2, type=int, help='power of the slot loss')
     parser.add_argument('--to_k_layer', default=1, type=int, help='number of layers in to_k')
     parser.add_argument('--lambda_value', default=1., type=float, help='lambda of slot loss')
-    parser.add_argument('--vis', default=False, help='whether save slot visualization')
+    parser.add_argument('--vis', default=False, type=str2bool, help='whether save slot visualization')
     parser.add_argument('--vis_id', default=0, type=int, help='choose image to visualization')
 
     # data/machine set
@@ -54,7 +62,7 @@ def get_args_parser():
                         help='device to use for training / testing')
     parser.add_argument('--num_workers', default=4, type=int)
     parser.add_argument('--start_epoch', default=0, type=int, metavar='N', help='start epoch')
-    parser.add_argument('--resume', default=False, help='resume from checkpoint')
+    parser.add_argument('--resume', default=False, type=str2bool, help='resume from checkpoint')
 
     # distributed training parameters
     parser.add_argument('--world_size', default=1, type=int,

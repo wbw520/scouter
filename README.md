@@ -8,35 +8,35 @@ python -m torch.distributed.launch --nproc_per_node=4 --use_env train.py --world
 ##### Pre-training for MNIST dataset
 ```bash
 python train.py --dataset MNIST --model resnet18 --batch_size 64 --epochs 10 \
---num_classes 10 --use_slot False --vis False
+--num_classes 10 --use_slot false --vis false --aug false
 ```
 
 ##### Positive Scouter for MNIST dataset
 ```bash
 python train.py --dataset MNIST --model resnet18 --batch_size 64 --epochs 10 \
---num_classes 10 --use_slot True --use_pre True --loss_status 1 --slots_per_class 3 \
---power 2 --to_k_layer 1 --lambda_value 1. --vis False --channel 512
+--num_classes 10 --use_slot true --use_pre true --loss_status 1 --slots_per_class 3 \
+--power 2 --to_k_layer 1 --lambda_value 1. --vis false --channel 512 --aug false
 ```
 
 ##### Negative Scouter for MNIST dataset
 ```bash
 python train.py --dataset MNIST --model resnet18 --batch_size 64 --epochs 10 \
---num_classes 10 --use_slot True --use_pre True --loss_status -1 --slots_per_class 3 \
---power 2 --to_k_layer 1 --lambda_value 1. --vis False --channel 512
+--num_classes 10 --use_slot true --use_pre true --loss_status -1 --slots_per_class 3 \
+--power 2 --to_k_layer 1 --lambda_value 1. --vis false --channel 512 --aug false
 ```
 
 ##### Visualization of Positive Scouter for MNIST dataset
 ```bash
 python test.py --dataset MNIST --model resnet18 --batch_size 64 --epochs 10 \
---num_classes 10 --use_slot True --use_pre True --loss_status 1 --slots_per_class 3 \
---power 2 --to_k_layer 1 --lambda_value 1. --vis True --channel 512
+--num_classes 10 --use_slot true --use_pre true --loss_status 1 --slots_per_class 3 \
+--power 2 --to_k_layer 1 --lambda_value 1. --vis true --channel 512
 ```
 
 ##### Visualization of Negative Scouter for MNIST dataset
 ```bash
 python test.py --dataset MNIST --model resnet18 --batch_size 64 --epochs 10 \
---num_classes 10 --use_slot True --use_pre True --loss_status -1 --slots_per_class 3 \
---power 2 --to_k_layer 1 --lambda_value 1. --vis True --channel 512
+--num_classes 10 --use_slot true --use_pre true --loss_status -1 --slots_per_class 3 \
+--power 2 --to_k_layer 1 --lambda_value 1. --vis true --channel 512
 ```
 
 #### Con-Text Dataset
@@ -44,39 +44,39 @@ python test.py --dataset MNIST --model resnet18 --batch_size 64 --epochs 10 \
 ##### Pre-training for ConText dataset
 ```bash
 python train.py --dataset ConText --model resnest26d --batch_size 200 --epochs 100 \
---num_classes 30 --use_slot False --vis False \
+--num_classes 30 --use_slot false --vis false \
 --dataset_dir /home/li/data/con-text/JPEGImages/
 ```
 
 ##### Positive Scouter for ConText dataset
 ```bash
 python train.py --dataset ConText --model resnest26d --batch_size 200 --epochs 100 \
---num_classes 30 --use_slot True --use_pre True --loss_status 1 --slots_per_class 3 \
---power 2 --to_k_layer 3 --lambda_value .2 --vis False --channel 2048 \
+--num_classes 30 --use_slot true --use_pre true --loss_status 1 --slots_per_class 3 \
+--power 2 --to_k_layer 3 --lambda_value .2 --vis false --channel 2048 \
 --dataset_dir /home/li/data/con-text/JPEGImages/
 ```
 
 ##### Negative Scouter for ConText dataset
 ```bash
 python train.py --dataset ConText --model resnest26d --batch_size 200 --epochs 100 \
---num_classes 30 --use_slot True --use_pre True --loss_status -1 --slots_per_class 3 \
---power 2 --to_k_layer 3 --lambda_value 1. --vis False --channel 2048 \
+--num_classes 30 --use_slot true --use_pre true --loss_status -1 --slots_per_class 3 \
+--power 2 --to_k_layer 3 --lambda_value 1. --vis false --channel 2048 \
 --dataset_dir /home/li/data/con-text/JPEGImages/
 ```
 
 ##### Visualization of Positive Scouter for ConText dataset
 ```bash
 python test.py --dataset ConText --model resnest26d --batch_size 200 --epochs 100 \
---num_classes 30 --use_slot True --use_pre True --loss_status 1 --slots_per_class 3 \
---power 2 --to_k_layer 3 --lambda_value 1. --vis True --channel 2048 \
+--num_classes 30 --use_slot true --use_pre true --loss_status 1 --slots_per_class 3 \
+--power 2 --to_k_layer 3 --lambda_value 1. --vis true --channel 2048 \
 --dataset_dir /home/li/data/con-text/JPEGImages/
 ```
 
 ##### Visualization of Negative Scouter for ConText dataset
 ```bash
 python test.py --dataset ConText --model resnest26d --batch_size 200 --epochs 100 \
---num_classes 30 --use_slot True --use_pre True --loss_status -1 --slots_per_class 3 \
---power 2 --to_k_layer 3 --lambda_value 1. --vis True --channel 2048 \
+--num_classes 30 --use_slot true --use_pre true --loss_status -1 --slots_per_class 3 \
+--power 2 --to_k_layer 3 --lambda_value 1. --vis true --channel 2048 \
 --dataset_dir /home/li/data/con-text/JPEGImages/
 ```
 
@@ -84,22 +84,27 @@ python test.py --dataset ConText --model resnest26d --batch_size 200 --epochs 10
 ##### Pre-training for CUB-200 dataset
 ```bash
 python train.py --dataset CUB200 --model resnest50d --batch_size 64 --epochs 100 \
---num_classes 25 --use_slot False --vis False \
+--num_classes 25 --use_slot false --vis false --channel 2048 \
 --dataset_dir /home/wangbowen/data/bird_200/CUB_200_2011/CUB_200_2011/
 ```
 
 ##### Positive Scouter for CUB-200 dataset
 ```bash
 python train.py --dataset CUB200 --model resnest50d --batch_size 64 --epochs 100 \
---num_classes 25 --use_slot True --use_pre True --loss_status 1 --slots_per_class 3 \
---power 2 --to_k_layer 3 --lambda_value 1. --vis False \
+--num_classes 25 --use_slot true --use_pre true --loss_status 1 --slots_per_class 3 \
+--power 2 --to_k_layer 3 --lambda_value 1. --vis false --channel 2048 \
 --dataset_dir /home/wangbowen/data/bird_200/CUB_200_2011/CUB_200_2011/
 ```
 
 ##### Negative Scouter for CUB-200 dataset
 ```bash
 python train.py --dataset CUB200 --model resnest50d --batch_size 64 --epochs 100 \
---num_classes 25 --use_slot True --use_pre True --loss_status -1 --slots_per_class 3 \
---power 2 --to_k_layer 3 --lambda_value 1. --vis False \
+--num_classes 25 --use_slot true --use_pre true --loss_status -1 --slots_per_class 3 \
+--power 2 --to_k_layer 3 --lambda_value 1. --vis false --channel 2048 \
 --dataset_dir /home/wangbowen/data/bird_200/CUB_200_2011/CUB_200_2011/
 ```
+
+##### Visualization of Positive Scouter for CUB-200 dataset
+
+
+##### Visualization of Negative Scouter for CUB-200 dataset

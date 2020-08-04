@@ -16,6 +16,10 @@ class MakeList(object):
         self.image_root = args.dataset_dir
         self.all_image = get_name(self.image_root, mode_folder=False)
         self.category = sorted(set([i[:i.find('_')] for i in self.all_image]))
+
+        for c_id, c in enumerate(self.category):
+            print(c_id, '\t', c)
+
         self.ration = ratio
 
     def get_data(self):

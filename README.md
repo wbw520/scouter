@@ -5,6 +5,42 @@ python -m torch.distributed.launch --nproc_per_node=4 --use_env train.py --world
 
 #### Con-Text Dataset
 
+##### Pre-training for MNIST dataset
+```bash
+python train.py --dataset MNIST --model resnet18 --batch_size 64 --epochs 10 \
+--num_classes 10 --use_slot False --vis False
+```
+
+##### Positive Scouter for MNIST dataset
+```bash
+python train.py --dataset MNIST --model resnet18 --batch_size 64 --epochs 10 \
+--num_classes 10 --use_slot True --use_pre True --loss_status 1 --slots_per_class 3 \
+--power 2 --to_k_layer 1 --lambda_value 1. --vis False --channel 512
+```
+
+##### Negative Scouter for MNIST dataset
+```bash
+python train.py --dataset MNIST --model resnet18 --batch_size 64 --epochs 10 \
+--num_classes 10 --use_slot True --use_pre True --loss_status -1 --slots_per_class 3 \
+--power 2 --to_k_layer 1 --lambda_value 1. --vis False --channel 512
+```
+
+##### Visualization of Positive Scouter for MNIST dataset
+```bash
+python test.py --dataset MNIST --model resnet18 --batch_size 64 --epochs 10 \
+--num_classes 10 --use_slot True --use_pre True --loss_status 1 --slots_per_class 3 \
+--power 2 --to_k_layer 1 --lambda_value 1. --vis True --channel 512
+```
+
+##### Visualization of Negative Scouter for MNIST dataset
+```bash
+python test.py --dataset MNIST --model resnet18 --batch_size 64 --epochs 10 \
+--num_classes 10 --use_slot True --use_pre True --loss_status -1 --slots_per_class 3 \
+--power 2 --to_k_layer 1 --lambda_value 1. --vis True --channel 512
+```
+
+#### Con-Text Dataset
+
 ##### Pre-training for ConText dataset
 ```bash
 python train.py --dataset ConText --model resnest26d --batch_size 200 --epochs 100 \
@@ -16,7 +52,7 @@ python train.py --dataset ConText --model resnest26d --batch_size 200 --epochs 1
 ```bash
 python train.py --dataset ConText --model resnest26d --batch_size 200 --epochs 100 \
 --num_classes 30 --use_slot True --use_pre True --loss_status 1 --slots_per_class 3 \
---power 2 --to_k_layer 3 --lambda_value .2 --vis False \
+--power 2 --to_k_layer 3 --lambda_value .2 --vis False --channel 2048 \
 --dataset_dir /home/li/data/con-text/JPEGImages/
 ```
 
@@ -24,7 +60,23 @@ python train.py --dataset ConText --model resnest26d --batch_size 200 --epochs 1
 ```bash
 python train.py --dataset ConText --model resnest26d --batch_size 200 --epochs 100 \
 --num_classes 30 --use_slot True --use_pre True --loss_status -1 --slots_per_class 3 \
---power 2 --to_k_layer 3 --lambda_value 1. --vis False \
+--power 2 --to_k_layer 3 --lambda_value 1. --vis False --channel 2048 \
+--dataset_dir /home/li/data/con-text/JPEGImages/
+```
+
+##### Visualization of Positive Scouter for ConText dataset
+```bash
+python test.py --dataset ConText --model resnest26d --batch_size 200 --epochs 100 \
+--num_classes 30 --use_slot True --use_pre True --loss_status 1 --slots_per_class 3 \
+--power 2 --to_k_layer 3 --lambda_value 1. --vis True --channel 2048 \
+--dataset_dir /home/li/data/con-text/JPEGImages/
+```
+
+##### Visualization of Negative Scouter for ConText dataset
+```bash
+python test.py --dataset ConText --model resnest26d --batch_size 200 --epochs 100 \
+--num_classes 30 --use_slot True --use_pre True --loss_status -1 --slots_per_class 3 \
+--power 2 --to_k_layer 3 --lambda_value 1. --vis True --channel 2048 \
 --dataset_dir /home/li/data/con-text/JPEGImages/
 ```
 

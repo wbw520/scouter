@@ -77,9 +77,10 @@ def main():
     # CUB
     # image_path = os.path.join(args.dataset_dir, "images", "024.Red_faced_Cormorant", "Red_Faced_Cormorant_0007_796280.jpg")
     # image_orl = Image.open(image_path).convert('RGB')
-    # image = np.array(image_orl.resize((args.img_size, args.img_size), Image.BILINEAR))
-    # image = make_video_transform("val")(image)
-    image = transform(image)
+    # image = transform(image_orl)
+    # transform = transforms.Compose([transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])])
+    # label = ''
+    # image = transform(image)
 
     print("label\t", label)
     model = SlotModel(args)

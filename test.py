@@ -46,12 +46,12 @@ def test(args, model, device, img, image, vis_id):
 def main():
     parser = argparse.ArgumentParser('model training and evaluation script', parents=[get_args_parser()])
     args = parser.parse_args()
-    model_name = f"{args.dataset}_use_slot_negative_checkpoint.pth"
-    args.use_pre = False
-    if "negative" in model_name:
-        args.loss_status = -1
+
+    if args.loss_status == 1:
+        model_name = f"{args.dataset}_use_slot_checkpoint.pth"
     else:
-        args.loss_status = 1
+        model_name = f"{args.dataset}_use_slot_negative_checkpoint.pth"
+    args.use_pre = False
 
     device = torch.device(args.device)
     

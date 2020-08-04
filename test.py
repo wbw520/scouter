@@ -68,14 +68,16 @@ def main():
         image = data["image"][98]#19 21  26  59  61 98 22*35 40*   41&
         label = data["label"][98]#19 21  26  59  61 98 22*35 40*   41&
         image_orl = Image.fromarray((image.cpu().detach().numpy()*255).astype(np.uint8).transpose((1,2,0)), mode='RGB')
+        image = transform(image_orl)
         transform = transforms.Compose([transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])])
     # MNIST
     elif args.dataset == 'MNIST':
         dataset_val = datasets.MNIST('./data/mnist', train=False, transform=transform)
         data_loader_val = torch.utils.data.DataLoader(dataset_val, args.batch_size, shuffle=False, num_workers=1, pin_memory=True)
-        image = iter(data_loader_val).next()[0]
+        image = iter(data_loader_val).next()[0][0]
         label = ''
-        image_orl = Image.fromarray((image.cpu().detach().numpy()*255).astype(np.uint8)[0,0], mode='L')
+        image_orl = Image.fromarray((image.cpu().detach().numpy()*255).astype(np.uint8)[0], mode='L')
+        image = transform(image_orl)
         transform = transforms.Compose([transforms.Normalize((0.1307,), (0.3081,))])
     # CUB
     elif args.dataset == 'CUB200':
@@ -84,7 +86,7 @@ def main():
         image = transform(image_orl)
         transform = transforms.Compose([transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])])
         label = ''
-        image = transform(image)
+    image = transform(image)
 
     print("label\t", label)
     model = SlotModel(args)

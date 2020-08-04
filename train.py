@@ -16,6 +16,7 @@ def get_args_parser():
     parser = argparse.ArgumentParser('Set 3D model', add_help=False)
     parser.add_argument('--model', default="resnet18", type=str)
     parser.add_argument('--dataset', default="MNIST", type=str)
+    parser.add_argument('--channel', default=512, type=int)
 
     # training set
     parser.add_argument('--lr', default=0.0001, type=float)

@@ -42,8 +42,9 @@ class SlotModel(nn.Module):
         self.use_slot = args.use_slot
         self.backbone = load_backbone(args)
         if self.use_slot:
+            self.channel = args.channel
             self.slots_per_class = args.slots_per_class
-            self.conv1x1 = nn.Conv2d(512, args.hidden_dim, kernel_size=(1, 1), stride=(1, 1))
+            self.conv1x1 = nn.Conv2d(self.channel, args.hidden_dim, kernel_size=(1, 1), stride=(1, 1))
             if args.pre_trained:
                 self.dfs_freeze(self.backbone)
             self.slot = SlotAttention(args.num_classes, self.slots_per_class, args.hidden_dim, vis=args.vis,
@@ -71,7 +72,7 @@ class SlotModel(nn.Module):
     def forward(self, x, target=None):
         x = self.backbone(x)
         if self.use_slot:
-            x = self.conv1x1(x.view(x.size(0), 512, 9, 9))
+            x = self.conv1x1(x.view(x.size(0), self.channel, 9, 9))
             x = torch.relu(x)
             pe = self.position_emb(x)
             x_pe = x + pe

@@ -12,6 +12,7 @@ from sloter.slot_model import SlotModel
 from train import get_args_parser
 
 from torchvision import datasets, transforms
+from dataset.ConText import ConText, MakeList
 
 def test(args, model, device, img, image, vis_id):
     model.to(device)
@@ -58,19 +59,29 @@ def main():
         transforms.Resize((args.img_size, args.img_size)),
         transforms.ToTensor(),
         ])
-    dataset_val = datasets.MNIST('./data/mnist', train=False, transform=transform)
+    # Con-text
+    train, val = MakeList(args).get_data()
+    dataset_val = ConText(val, transform=transform)
     data_loader_val = torch.utils.data.DataLoader(dataset_val, args.batch_size, shuffle=False, num_workers=1, pin_memory=True)
-    image = iter(data_loader_val).next()[0]
-    image_orl = Image.fromarray((image.cpu().detach().numpy()*255).astype(np.uint8)[0,0], mode='L')
+    data = iter(data_loader_val).next()
+    image = data["image"][98]#19 21  26  59  61 98 22*35 40*   41&
+    label = data["label"][98]#19 21  26  59  61 98 22*35 40*   41&
+    image_orl = Image.fromarray((image.cpu().detach().numpy()*255).astype(np.uint8).transpose((1,2,0)), mode='RGB')
+    transform = transforms.Compose([transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])])
+    # MNIST
+    # dataset_val = datasets.MNIST('./data/mnist', train=False, transform=transform)
+    # data_loader_val = torch.utils.data.DataLoader(dataset_val, args.batch_size, shuffle=False, num_workers=1, pin_memory=True)
+    # image = iter(data_loader_val).next()[0]
+    # image_orl = Image.fromarray((image.cpu().detach().numpy()*255).astype(np.uint8)[0,0], mode='L')
+    # transform = transforms.Compose([transforms.Normalize((0.1307,), (0.3081,))])
+    # CUB
     # image_path = os.path.join(args.dataset_dir, "images", "024.Red_faced_Cormorant", "Red_Faced_Cormorant_0007_796280.jpg")
     # image_orl = Image.open(image_path).convert('RGB')
     # image = np.array(image_orl.resize((args.img_size, args.img_size), Image.BILINEAR))
     # image = make_video_transform("val")(image)
-    transform = transforms.Compose([
-        transforms.Normalize((0.1307,), (0.3081,))
-        ])
-    image = transform(image[0])
+    image = transform(image)
 
+    print("label\t", label)
     model = SlotModel(args)
     # Map model to be loaded to specified single gpu.
     checkpoint = torch.load("saved_model/" + model_name, map_location=args.device)

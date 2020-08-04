@@ -16,7 +16,7 @@ def select_dataset(args):
     if args.dataset == "ConText":
         train, val = MakeList(args).get_data()
         dataset_train = ConText(train, transform=make_transform(args, "train"))
-        dataset_val = ConText(val, transform=make_transform(args, "train"))
+        dataset_val = ConText(val, transform=make_transform(args, "val"))
         return dataset_train, dataset_val
 
     raise ValueError(f'unknown {args.dataset}')

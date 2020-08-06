@@ -6,8 +6,8 @@ import cv2
 import numpy as np
 from train import get_args_parser
 import argparse
-from timm.models import create_model
-from tools.data_loader import make_video_transform
+from sloter.slot_model import load_backbone
+from dataset.transform_func import make_transform
 import os
 from PIL import Image
 
@@ -28,7 +28,8 @@ class FeatureExtractor():
         self.gradients = []
         for name, module in self.model._modules.items():
             x = module(x)
-            if name in "avg":
+            print(x.size())
+            if name in "global_pool":
                 batch = x.size()[0]  # drop height and width
                 channel = x.size()[1]
                 x = x.view(batch, channel)
@@ -109,10 +110,9 @@ class GradCam:
 
 
 def image_deal(data_name):
-    image_path = os.path.join(args.dataset_dir, "inference", data_name)
-    image_orl = Image.open(image_path).convert('RGB')
-    image = np.array(image_orl.resize((args.img_size, args.img_size), Image.BILINEAR))
-    image = make_video_transform("val")(image)
+    image_orl = Image.open(data_name).convert('RGB')
+    image = image_orl.resize((args.img_size, args.img_size), Image.BILINEAR)
+    image = make_transform(args, "val")(image)
     inputs = image.to(device, dtype=torch.float32)
     return inputs, image_orl
 
@@ -132,12 +132,12 @@ def show_cam_on_image(imgs, masks):
 
 def make_grad(model, image_inf):
     grad_cam = GradCam(model=model, target_layer_names=[need_layer], use_cuda=True)
-    input, img_heat = image_deal(image_inf[0])
+    input, img_heat = image_deal(image_inf)
     # If None, returns the map for the highest scoring category.
     # Otherwise, targets the requested index.
     target_index = None
-    mask = grad_cam(input, target_index)
-    show_cam_on_image(img_heat, mask)
+    mask = grad_cam(torch.unsqueeze(input, dim=0), target_index)
+    show_cam_on_image(np.array(img_heat), mask)
 
 
 if __name__ == '__main__':
@@ -150,14 +150,8 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser('model training and evaluation script', parents=[get_args_parser()])
     args = parser.parse_args()
-    model_name = "use_slot_negetive_checkpoint0149.pth"
+    need_layer = "layer4"
     device = args.device
-    init_model = create_model(
-        args.model,
-        pretrained=args.pre_trained,
-        num_classes=args.num_classes)
-    need_layer = "cnn_layer"
-    init_model.load_state_dict(torch.load(model_name))
-
-    root = '/home/wbw/PAN/final/CR-90064992_20120910/left.png'
-    make_grad(init_model, [root, "hehe"])
+    init_model = load_backbone(args)
+    root = os.path.join(args.dataset_dir, "images", "024.Red_faced_Cormorant", "Red_Faced_Cormorant_0007_796280.jpg")
+    make_grad(init_model, root)

@@ -31,8 +31,9 @@ def load_backbone(args):
                 new_state_dict[name] = v
             bone.load_state_dict(new_state_dict)
             print("load pre dataset parameter over")
-        bone.global_pool = Identical()
-        bone.fc = Identical()
+        if not args.grad:
+            bone.global_pool = Identical()
+            bone.fc = Identical()
     return bone
 
 

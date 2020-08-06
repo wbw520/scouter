@@ -11,6 +11,9 @@ from dataset.transform_func import make_transform
 import os
 from PIL import Image
 
+from torchvision import datasets, transforms
+from dataset.ConText import ConText, MakeList
+from sloter.utils.vis import apply_colormap_on_image
 
 class FeatureExtractor():
     """ Class for extracting activations and
@@ -111,33 +114,29 @@ class GradCam:
 
 def image_deal(data_name):
     image_orl = Image.open(data_name).convert('RGB')
-    image = image_orl.resize((args.img_size, args.img_size), Image.BILINEAR)
     image = make_transform(args, "val")(image)
     inputs = image.to(device, dtype=torch.float32)
     return inputs, image_orl
 
 
-def show_cam_on_image(imgs, masks):
+def show_cam_on_image(img, masks, target_index):
     final = np.uint8(255*masks)
-    h, w, c = imgs.shape
-    final = cv2.resize(final, (w, h), interpolation=cv2.INTER_LINEAR)
-    final = cv2.applyColorMap(final, 2)
-    final = final[:, :, (2, 1, 0)]
-    out = cv2.addWeighted(np.uint8(imgs), 1.0, final, 0.3, 0)
-    # ret, thresh = cv2.threshold(final, C.heat_value, 255, cv2.THRESH_BINARY)
-    plt.figure(figsize=(10, 10), facecolor="#FFFFFF")
-    plt.imshow(out)
-    plt.show()
+
+    heatmap_only, heatmap_on_image = apply_colormap_on_image(img, final, 'jet')
+    heatmap_on_image.save(f'sloter/vis/grad_cam_{target_index}.png')
 
 
-def make_grad(model, image_inf):
+def make_grad(model, inputs, img_heat):
     grad_cam = GradCam(model=model, target_layer_names=[need_layer], use_cuda=True)
-    input, img_heat = image_deal(image_inf)
+    img_heat = img_heat.resize((args.img_size, args.img_size), Image.BILINEAR)
+    # inputs, img_heat = image_deal(image_inf)
+
     # If None, returns the map for the highest scoring category.
     # Otherwise, targets the requested index.
-    target_index = None
-    mask = grad_cam(torch.unsqueeze(input, dim=0), target_index)
-    show_cam_on_image(np.array(img_heat), mask)
+    # target_index = None
+    for target_index in range(0, args.num_classes):
+        mask = grad_cam(torch.unsqueeze(inputs, dim=0), target_index)
+        show_cam_on_image(img_heat, mask, target_index)
 
 
 if __name__ == '__main__':
@@ -153,5 +152,38 @@ if __name__ == '__main__':
     need_layer = "layer4"
     device = args.device
     init_model = load_backbone(args)
-    root = os.path.join(args.dataset_dir, "images", "024.Red_faced_Cormorant", "Red_Faced_Cormorant_0007_796280.jpg")
-    make_grad(init_model, root)
+
+    transform = transforms.Compose([
+        transforms.Resize((args.img_size, args.img_size)),
+        transforms.ToTensor(),
+    ])
+    # Con-text
+    if args.dataset == 'ConText':
+        train, val = MakeList(args).get_data()
+        dataset_val = ConText(val, transform=transform)
+        data_loader_val = torch.utils.data.DataLoader(dataset_val, args.batch_size, shuffle=False, num_workers=1, pin_memory=True)
+        data = iter(data_loader_val).next()
+        image = data["image"][98]#19 21  26  59  61 98 22*35 40*   41&
+        label = data["label"][98]#19 21  26  59  61 98 22*35 40*   41&
+        image_orl = Image.fromarray((image.cpu().detach().numpy()*255).astype(np.uint8).transpose((1,2,0)), mode='RGB')
+        image = transform(image_orl)
+        transform = transforms.Compose([transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])])
+    # MNIST
+    elif args.dataset == 'MNIST':
+        dataset_val = datasets.MNIST('./data/mnist', train=False, transform=transform)
+        data_loader_val = torch.utils.data.DataLoader(dataset_val, args.batch_size, shuffle=False, num_workers=1, pin_memory=True)
+        image = iter(data_loader_val).next()[0][0]
+        label = ''
+        image_orl = Image.fromarray((image.cpu().detach().numpy()*255).astype(np.uint8)[0], mode='L')
+        image = transform(image_orl)
+        transform = transforms.Compose([transforms.Normalize((0.1307,), (0.3081,))])
+    # CUB
+    elif args.dataset == 'CUB200':
+        image_path = os.path.join(args.dataset_dir, "images", "001.Black_footed_Albatross", "Black_Footed_Albatross_0001_796111.jpg")
+        image_orl = Image.open(image_path).convert('RGB')
+        image = transform(image_orl)
+        transform = transforms.Compose([transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])])
+        label = ''
+    image = transform(image)
+
+    make_grad(init_model, image, image_orl)

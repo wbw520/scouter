@@ -38,7 +38,7 @@ def get_args_parser():
     parser.add_argument('--use_slot', default=True, type=str2bool, help='whether use slot module')
     parser.add_argument('--use_pre', default=False, type=str2bool, help='whether use pre dataset parameter')
     parser.add_argument('--aug', default=False, type=str2bool, help='whether use pre dataset parameter')
-    parser.add_argument('--grad', default=True, type=str2bool, help='whether use grad-cam for visulazition')
+    parser.add_argument('--grad', default=False, type=str2bool, help='whether use grad-cam for visulazition')
 
     # slot setting
     parser.add_argument('--loss_status', default=1, type=int, help='positive or negative loss')

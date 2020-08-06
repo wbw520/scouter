@@ -13,6 +13,7 @@ from PIL import Image
 
 from torchvision import datasets, transforms
 from dataset.ConText import ConText, MakeList
+from dataset.CUB200 import CUB_200
 from sloter.utils.vis import apply_colormap_on_image
 
 class FeatureExtractor():
@@ -105,10 +106,7 @@ class GradCam:
         for i, w in enumerate(weights):
             cam += w * target[i, :, :]
 
-        cam = np.maximum(cam, 0)
         cam = cv2.resize(cam, (args.img_size, args.img_size))
-        cam = cam - np.min(cam)
-        cam = cam / np.max(cam)
         return cam
 
 
@@ -126,7 +124,7 @@ def show_cam_on_image(img, masks, target_index):
     heatmap_on_image.save(f'sloter/vis/grad_cam_{target_index}.png')
 
 
-def make_grad(model, inputs, img_heat):
+def make_grad(model, inputs, img_heat, grad_min_level):
     grad_cam = GradCam(model=model, target_layer_names=[need_layer], use_cuda=True)
     img_heat = img_heat.resize((args.img_size, args.img_size), Image.BILINEAR)
     # inputs, img_heat = image_deal(image_inf)
@@ -136,6 +134,12 @@ def make_grad(model, inputs, img_heat):
     # target_index = None
     for target_index in range(0, args.num_classes):
         mask = grad_cam(torch.unsqueeze(inputs, dim=0), target_index)
+        mask = np.maximum(mask, 0)
+        mask = mask - np.min(mask)
+        mask = mask / np.max(mask)
+        mask = np.maximum(mask, grad_min_level)
+        mask = mask - np.min(mask)
+        mask = mask / np.max(mask)
         show_cam_on_image(img_heat, mask, target_index)
 
 
@@ -179,11 +183,19 @@ if __name__ == '__main__':
         transform = transforms.Compose([transforms.Normalize((0.1307,), (0.3081,))])
     # CUB
     elif args.dataset == 'CUB200':
-        image_path = os.path.join(args.dataset_dir, "images", "001.Black_footed_Albatross", "Black_Footed_Albatross_0001_796111.jpg")
-        image_orl = Image.open(image_path).convert('RGB')
+        # image_path = os.path.join(args.dataset_dir, "images", "001.Black_footed_Albatross", "Black_Footed_Albatross_0001_796111.jpg")
+        # image_orl = Image.open(image_path).convert('RGB')
+        # image = transform(image_orl)
+        # transform = transforms.Compose([transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])])
+        # label = ''
+        dataset_val = CUB_200(args, train=False, transform=transform)
+        data_loader_val = torch.utils.data.DataLoader(dataset_val, args.batch_size, shuffle=False, num_workers=1, pin_memory=True)
+        data = iter(data_loader_val).next()
+        image = data["image"][6]
+        label = data["label"][6]
+        image_orl = Image.fromarray((image.cpu().detach().numpy()*255).astype(np.uint8).transpose((1,2,0)), mode='RGB')
         image = transform(image_orl)
         transform = transforms.Compose([transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])])
-        label = ''
     image = transform(image)
 
-    make_grad(init_model, image, image_orl)
+    make_grad(init_model, image, image_orl, args.grad_min_level)

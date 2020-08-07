@@ -29,14 +29,14 @@ from dataset.ConText import ConText, MakeList
 from dataset.CUB200 import CUB_200
 
 
-def show_cam_on_image(img, masks, target_index):
+def show_cam_on_image(img, masks, target_index, save_name):
     final = np.uint8(255*masks)
 
     heatmap_only, heatmap_on_image = apply_colormap_on_image(img, final, 'jet')
-    heatmap_on_image.save(f'sloter/vis/captum_{target_index}.png')
+    heatmap_on_image.save(f'sloter/vis/{save_name}_{target_index}.png')
 
 
-def make_grad(attribute_f, inputs, img_heat, grad_min_level):
+def make_grad(attribute_f, inputs, img_heat, grad_min_level, save_name):
     img_heat = img_heat.resize((args.img_size, args.img_size), Image.BILINEAR)
     # inputs, img_heat = image_deal(image_inf)
 
@@ -56,7 +56,7 @@ def make_grad(attribute_f, inputs, img_heat, grad_min_level):
         mask = np.maximum(mask, grad_min_level)
         mask = mask - np.min(mask)
         mask = mask / np.max(mask)
-        show_cam_on_image(img_heat, mask, target_index)
+        show_cam_on_image(img_heat, mask, target_index, save_name)
 
 
 def for_vis(args):
@@ -114,9 +114,10 @@ def for_vis(args):
     predicted_label = str(pred_label_idx.item() + 1)
     print('Predicted:', predicted_label, '(', prediction_score.squeeze().item(), ')')
 
+    gradients = LayerGradCam(model, layer=model.layer4)
+    make_grad(gradients, image, image_orl, args.grad_min_level, 'GradCam')
     gradients = LayerDeepLift(model, layer=model.layer4)
-    # attributions_ig = integrated_gradients.attribute(inputs, target=pred_label_idx)
-    make_grad(gradients, image, image_orl, args.grad_min_level)
+    make_grad(gradients, image, image_orl, args.grad_min_level, 'DeepLIFT')
 
 
 if __name__ == '__main__':

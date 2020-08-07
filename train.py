@@ -43,6 +43,7 @@ def get_args_parser():
 
     # slot setting
     parser.add_argument('--loss_status', default=1, type=int, help='positive or negative loss')
+    parser.add_argument('--freeze_layers', default=2, type=int, help='number of freeze layers')
     parser.add_argument('--hidden_dim', default=64, type=int, help='dimension of to_k')
     parser.add_argument('--slots_per_class', default=3, type=int, help='number of slot for each class')
     parser.add_argument('--power', default=2, type=int, help='power of the slot loss')

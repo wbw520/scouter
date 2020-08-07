@@ -65,7 +65,7 @@ class SlotModel(nn.Module):
                 continue
             for param in child.parameters():
                 param.requires_grad = False
-            self.dfs_freeze(child)
+            self.dfs_freeze(child, freeze_layer_num)
 
     def dfs_freeze_bnorm(self, model):
         for name, child in model.named_children():

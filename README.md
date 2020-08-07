@@ -39,9 +39,9 @@ python test.py --dataset MNIST --model resnet18 --batch_size 64 --epochs 10 \
 --power 2 --to_k_layer 1 --lambda_value 1. --vis true --channel 512 --aug false --freeze_layers 3
 ```
 
-##### Visualization of Grad-CAM for MNIST dataset
+##### Visualization using Captum for MNIST dataset
 ```bash
-python grad_cam.py --dataset MNIST --model resnet18 --batch_size 64 \
+python captum_vis.py --dataset MNIST --model resnet18 --batch_size 64 \
 --num_classes 10 --grad true --use_pre true
 ```
 
@@ -86,9 +86,9 @@ python test.py --dataset ConText --model resnest26d --batch_size 200 --epochs 10
 --dataset_dir /home/li/data/con-text/JPEGImages/
 ```
 
-##### Visualization of Grad-CAM for ConText dataset
+##### Visualization using Captum for ConText dataset
 ```bash
-python grad_cam.py --dataset ConText --model resnest26d --batch_size 200 \
+python captum_vis.py --dataset ConText --model resnest26d --batch_size 200 \
 --num_classes 30 --grad true --use_pre true \
 --dataset_dir /home/li/data/con-text/JPEGImages/
 ```
@@ -133,9 +133,9 @@ python test.py --dataset CUB200 --model resnest50d --batch_size 64 --epochs 150 
 --dataset_dir /home/wangbowen/data/bird_200/CUB_200_2011/CUB_200_2011/
 ```
 
-##### Visualization of Grad-CAM for CUB-200 dataset
+##### Visualization using Captum for CUB-200 dataset
 ```bash
-python grad_cam.py --dataset CUB200 --model resnest50d --batch_size 150 \
+python captum_vis.py --dataset CUB200 --model resnest50d --batch_size 150 \
 --num_classes 25 --grad true --use_pre true \
 --dataset_dir /home/wangbowen/data/bird_200/CUB_200_2011/CUB_200_2011/
 ```

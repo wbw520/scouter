@@ -13,6 +13,7 @@ from train import get_args_parser
 
 from torchvision import datasets, transforms
 from dataset.ConText import ConText, MakeList
+from dataset.CUB200 import CUB_200
 
 def test(args, model, device, img, image, vis_id):
     model.to(device)
@@ -81,11 +82,20 @@ def main():
         transform = transforms.Compose([transforms.Normalize((0.1307,), (0.3081,))])
     # CUB
     elif args.dataset == 'CUB200':
-        image_path = os.path.join(args.dataset_dir, "images", "024.Red_faced_Cormorant", "Red_Faced_Cormorant_0007_796280.jpg")
-        image_orl = Image.open(image_path).convert('RGB')
+        # image_path = os.path.join(args.dataset_dir, "images", "001.Black_footed_Albatross", "Black_Footed_Albatross_0001_796111.jpg")
+        # # image_path = os.path.join(args.dataset_dir, "images", "024.Red_faced_Cormorant", "Red_Faced_Cormorant_0007_796280.jpg")
+        # image_orl = Image.open(image_path).convert('RGB')
+        # image = transform(image_orl)
+        # transform = transforms.Compose([transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])])
+        # label = ''
+        dataset_val = CUB_200(args, train=False, transform=transform)
+        data_loader_val = torch.utils.data.DataLoader(dataset_val, args.batch_size, shuffle=False, num_workers=1, pin_memory=True)
+        data = iter(data_loader_val).next()
+        image = data["image"][6]#4
+        label = data["label"][6]#4
+        image_orl = Image.fromarray((image.cpu().detach().numpy()*255).astype(np.uint8).transpose((1,2,0)), mode='RGB')
         image = transform(image_orl)
         transform = transforms.Compose([transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])])
-        label = ''
     image = transform(image)
 
     print("label\t", label)

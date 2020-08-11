@@ -21,8 +21,8 @@ python train.py --dataset MNIST --model resnet18 --batch_size 64 --epochs 10 \
 ##### Negative Scouter for MNIST dataset
 ```bash
 python train.py --dataset MNIST --model resnet18 --batch_size 64 --epochs 10 \
---num_classes 10 --use_slot true --use_pre true --loss_status -1 --slots_per_class 3 \
---power 2 --to_k_layer 1 --lambda_value 1. --vis false --channel 512 --aug false --freeze_layers 3
+--num_classes 10 --use_slot true --use_pre false --loss_status -1 --slots_per_class 2 \
+--power 2 --to_k_layer 1 --lambda_value 1.5 --vis false --channel 512 --aug false --freeze_layers 3
 ```
 
 ##### Visualization of Positive Scouter for MNIST dataset
@@ -35,8 +35,8 @@ python test.py --dataset MNIST --model resnet18 --batch_size 64 --epochs 10 \
 ##### Visualization of Negative Scouter for MNIST dataset
 ```bash
 python test.py --dataset MNIST --model resnet18 --batch_size 64 --epochs 10 \
---num_classes 10 --use_slot true --use_pre true --loss_status -1 --slots_per_class 3 \
---power 2 --to_k_layer 1 --lambda_value 1. --vis true --channel 512 --aug false --freeze_layers 3
+--num_classes 10 --use_slot true --use_pre false --loss_status -1 --slots_per_class 2 \
+--power 2 --to_k_layer 1 --lambda_value 1.5 --vis true --channel 512 --aug false --freeze_layers 3
 ```
 
 ##### Visualization using Captum for MNIST dataset
@@ -104,8 +104,8 @@ python train.py --dataset CUB200 --model resnest50d --batch_size 64 --epochs 150
 ##### Positive Scouter for CUB-200 dataset
 ```bash
 python train.py --dataset CUB200 --model resnest50d --batch_size 64 --epochs 150 \
---num_classes 25 --use_slot true --use_pre true --loss_status 1 --slots_per_class 3 \
---power 2 --to_k_layer 3 --lambda_value 1. --vis false --channel 2048 --freeze_layers 3 \
+--num_classes 25 --use_slot true --use_pre true --loss_status 1 --slots_per_class 5 \
+--power 2 --to_k_layer 3 --lambda_value 10 --vis false --channel 2048 --freeze_layers 2 \
 --dataset_dir /home/wangbowen/data/bird_200/CUB_200_2011/CUB_200_2011/
 ```
 
@@ -113,15 +113,15 @@ python train.py --dataset CUB200 --model resnest50d --batch_size 64 --epochs 150
 ```bash
 python train.py --dataset CUB200 --model resnest50d --batch_size 64 --epochs 150 \
 --num_classes 25 --use_slot true --use_pre true --loss_status -1 --slots_per_class 3 \
---power 2 --to_k_layer 3 --lambda_value 1. --vis false --channel 2048 --freeze_layers 3 \
+--power 2 --to_k_layer 3 --lambda_value 1. --vis false --channel 2048 --freeze_layers 2 \
 --dataset_dir /home/wangbowen/data/bird_200/CUB_200_2011/CUB_200_2011/
 ```
 
 ##### Visualization of Positive Scouter for CUB-200 dataset
 ```bash
 python test.py --dataset CUB200 --model resnest50d --batch_size 64 --epochs 150 \
---num_classes 25 --use_slot true --use_pre true --loss_status 1 --slots_per_class 3 \
---power 2 --to_k_layer 3 --lambda_value 1. --vis true --channel 2048 --freeze_layers 3 \
+--num_classes 25 --use_slot true --use_pre true --loss_status 1 --slots_per_class 5 \
+--power 2 --to_k_layer 3 --lambda_value 10 --vis true --channel 2048 --freeze_layers 2 \
 --dataset_dir /home/wangbowen/data/bird_200/CUB_200_2011/CUB_200_2011/
 ```
 
@@ -129,7 +129,7 @@ python test.py --dataset CUB200 --model resnest50d --batch_size 64 --epochs 150 
 ```bash
 python test.py --dataset CUB200 --model resnest50d --batch_size 64 --epochs 150 \
 --num_classes 25 --use_slot true --use_pre true --loss_status -1 --slots_per_class 3 \
---power 2 --to_k_layer 3 --lambda_value 1. --vis true --channel 2048 --freeze_layers 3 \
+--power 2 --to_k_layer 3 --lambda_value 1. --vis true --channel 2048 --freeze_layers 2 \
 --dataset_dir /home/wangbowen/data/bird_200/CUB_200_2011/CUB_200_2011/
 ```
 

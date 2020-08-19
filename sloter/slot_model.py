@@ -52,12 +52,15 @@ class SlotModel(nn.Module):
                                          vis_id=args.vis_id, loss_status=args.loss_status, power=args.power, to_k_layer=args.to_k_layer)
             self.position_emb = build_position_encoding('sine', hidden_dim=args.hidden_dim)
             self.lambda_value = float(args.lambda_value)
+        else:
+            if args.pre_trained:
+                self.dfs_freeze(self.backbone, args.freeze_layers)
 
     def dfs_freeze(self, model, freeze_layer_num):
-        freeze_layers = ['layer4', 'layer3', 'layer2', 'layer1'][:freeze_layer_num]
+        unfreeze_layers = ['layer4', 'layer3', 'layer2', 'layer1'][:4-freeze_layer_num]
         for name, child in model.named_children():
             skip = False
-            for freeze_layer in freeze_layers:
+            for freeze_layer in unfreeze_layers:
                 if freeze_layer in name:
                     skip = True
                     break

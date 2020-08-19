@@ -32,7 +32,7 @@ def get_args_parser():
     parser.add_argument('--batch_size', default=64, type=int)
     parser.add_argument('--weight_decay', default=0.0001, type=float)
     parser.add_argument('--epochs', default=10, type=int)
-    parser.add_argument("--num_classes", default=10, type=int)
+    parser.add_argument("--num_classes", default="10", type=str)
     parser.add_argument('--img_size', default=260, help='path for save data')
     parser.add_argument('--pre_trained', default=True, type=str2bool, help='whether use pre parameter for backbone')
     parser.add_argument('--use_slot', default=True, type=str2bool, help='whether use slot module')
@@ -40,6 +40,7 @@ def get_args_parser():
     parser.add_argument('--aug', default=False, type=str2bool, help='whether use pre dataset parameter')
     parser.add_argument('--grad', default=False, type=str2bool, help='whether use grad-cam for visulazition')
     parser.add_argument('--grad_min_level', default=0., type=float, help='control the grad-cam vis area')
+    parser.add_argument('--iterated_evaluation_num', default=1., type=int, help='used for iterated evaluation')
 
     # slot setting
     parser.add_argument('--loss_status', default=1, type=int, help='positive or negative loss')
@@ -150,48 +151,33 @@ def main(args):
 
 
 def param_translation(args):
-    if len(args.slots_per_class) > 1:
-        args.power = int(args.power)
-        args.lambda_value = int(args.lambda_value)
-        setting_list = args.slots_per_class.split(",")
-        for set in setting_list:
-            record.update({"slots_per_class-"+set: []})
-            args.slots_per_class = int(set)
-            for turn in range(circle_turns):
-                record["slots_per_class-"+set].append(main(args))
-    elif len(args.power) > 1:
-        args.slots_per_class = int(args.slots_per_class)
-        args.lambda_value = int(args.lambda_value)
-        setting_list = args.power.split(",")
-        for set in setting_list:
-            record.update({"power-"+set: []})
-            args.power = int(set)
-            for turn in range(circle_turns):
-                record["power-"+set].append(main(args))
-    elif len(args.lambda_value) > 1:
-        args.slots_per_class = int(args.slots_per_class)
-        args.power = int(args.power)
-        setting_list = args.lambda_value.split(",")
-        for set in setting_list:
-            record.update({"lambda_value-"+set: []})
-            args.lambda_value = int(set)
-            for turn in range(circle_turns):
-                record["lambda_value-"+set].append(main(args))
-    else:
-        args.power = int(args.power)
-        args.lambda_value = int(args.lambda_value)
-        args.slots_per_class = int(args.slots_per_class)
+    args_dict = vars(args)
+    args_for_evaluation = ['num_classes', 'lambda_value', 'power', 'slots_per_class']
+    args_type = [int, float, int, int]
+    target_arg = None
+    for arg_id, arg in enumerate(args_for_evaluation):
+        if args_dict[arg].find(',') > 0:
+            target_arg = arg
+            setting_list = args_dict[arg].split(",")
+        else:
+            args_dict[arg] = args_type[arg_id](args_dict[arg])
+
+    if target_arg is None:
         main(args)
+    else:
+        record = {}
+        circle_turns = args.iterated_evaluation_num
+        for set in setting_list:
+            record.update({f"{target_arg}-"+set: []})
+            args_dict[target_arg] = int(set)
+            for turn in range(circle_turns):
+                record[f"{target_arg}-"+set].append(main(args))
+        print(record)
 
 
 if __name__ == '__main__':
-    record = {}
-    circle_turns = 5
     parser = argparse.ArgumentParser('model training and evaluation script', parents=[get_args_parser()])
     args = parser.parse_args()
     if args.output_dir:
         Path(args.output_dir).mkdir(parents=True, exist_ok=True)
     param_translation(args)
-    print(record)
-    # main(args)
-    

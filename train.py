@@ -45,10 +45,10 @@ def get_args_parser():
     parser.add_argument('--loss_status', default=1, type=int, help='positive or negative loss')
     parser.add_argument('--freeze_layers', default=2, type=int, help='number of freeze layers')
     parser.add_argument('--hidden_dim', default=64, type=int, help='dimension of to_k')
-    parser.add_argument('--slots_per_class', default="3,2,1", type=str, help='number of slot for each class')
+    parser.add_argument('--slots_per_class', default="3", type=str, help='number of slot for each class')
     parser.add_argument('--power', default="2", type=str, help='power of the slot loss')
     parser.add_argument('--to_k_layer', default=1, type=int, help='number of layers in to_k')
-    parser.add_argument('--lambda_value', default="2", type=str, help='lambda of slot loss')
+    parser.add_argument('--lambda_value', default="1.", type=str, help='lambda of slot loss')
     parser.add_argument('--vis', default=False, type=str2bool, help='whether save slot visualization')
     parser.add_argument('--vis_id', default=0, type=int, help='choose image to visualization')
 
@@ -194,3 +194,4 @@ if __name__ == '__main__':
     param_translation(args)
     print(record)
     # main(args)
+    

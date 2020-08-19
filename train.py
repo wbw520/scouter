@@ -45,18 +45,18 @@ def get_args_parser():
     parser.add_argument('--loss_status', default=1, type=int, help='positive or negative loss')
     parser.add_argument('--freeze_layers', default=2, type=int, help='number of freeze layers')
     parser.add_argument('--hidden_dim', default=64, type=int, help='dimension of to_k')
-    parser.add_argument('--slots_per_class', default=3, type=int, help='number of slot for each class')
-    parser.add_argument('--power', default=2, type=int, help='power of the slot loss')
+    parser.add_argument('--slots_per_class', default="3,2,1", type=str, help='number of slot for each class')
+    parser.add_argument('--power', default="2", type=str, help='power of the slot loss')
     parser.add_argument('--to_k_layer', default=1, type=int, help='number of layers in to_k')
-    parser.add_argument('--lambda_value', default=1., type=float, help='lambda of slot loss')
+    parser.add_argument('--lambda_value', default="2", type=str, help='lambda of slot loss')
     parser.add_argument('--vis', default=False, type=str2bool, help='whether save slot visualization')
     parser.add_argument('--vis_id', default=0, type=int, help='choose image to visualization')
 
     # data/machine set
-    # parser.add_argument('--dataset_dir', default='/home/wbw/PAN/bird_200/CUB_200_2011/CUB_200_2011/',
-    #                     help='path for save data')
-    parser.add_argument('--dataset_dir', default='/home/wbw/PAN/board_images/data/JPEGImages/',
+    parser.add_argument('--dataset_dir', default='/home/wbw/PAN/bird_200/CUB_200_2011/CUB_200_2011/',
                         help='path for save data')
+    # parser.add_argument('--dataset_dir', default='/home/wbw/PAN/board_images/data/JPEGImages/',
+    #                     help='path for save data')
     parser.add_argument('--output_dir', default='saved_model/',
                         help='path where to save, empty for no saving')
     parser.add_argument('--pre_dir', default='pre_model/',
@@ -146,11 +146,51 @@ def main(args):
     total_time = time.time() - start_time
     total_time_str = str(datetime.timedelta(seconds=int(total_time)))
     print('Training time {}'.format(total_time_str))
+    return record["val"]["acc"][-1]
+
+
+def param_translation(args):
+    if len(args.slots_per_class) > 1:
+        args.power = int(args.power)
+        args.lambda_value = int(args.lambda_value)
+        setting_list = args.slots_per_class.split(",")
+        for set in setting_list:
+            record.update({"slots_per_class-"+set: []})
+            args.slots_per_class = int(set)
+            for turn in range(circle_turns):
+                record["slots_per_class-"+set].append(main(args))
+    elif len(args.power) > 1:
+        args.slots_per_class = int(args.slots_per_class)
+        args.lambda_value = int(args.lambda_value)
+        setting_list = args.power.split(",")
+        for set in setting_list:
+            record.update({"power-"+set: []})
+            args.power = int(set)
+            for turn in range(circle_turns):
+                record["power-"+set].append(main(args))
+    elif len(args.lambda_value) > 1:
+        args.slots_per_class = int(args.slots_per_class)
+        args.power = int(args.power)
+        setting_list = args.lambda_value.split(",")
+        for set in setting_list:
+            record.update({"lambda_value-"+set: []})
+            args.lambda_value = int(set)
+            for turn in range(circle_turns):
+                record["lambda_value-"+set].append(main(args))
+    else:
+        args.power = int(args.power)
+        args.lambda_value = int(args.lambda_value)
+        args.slots_per_class = int(args.slots_per_class)
+        main(args)
 
 
 if __name__ == '__main__':
+    record = {}
+    circle_turns = 5
     parser = argparse.ArgumentParser('model training and evaluation script', parents=[get_args_parser()])
     args = parser.parse_args()
     if args.output_dir:
         Path(args.output_dir).mkdir(parents=True, exist_ok=True)
-    main(args)
+    param_translation(args)
+    print(record)
+    # main(args)

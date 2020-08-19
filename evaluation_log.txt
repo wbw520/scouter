@@ -1,0 +1,19 @@
+python train.py --dataset CUB200 --model resnest26d --batch_size 64 --epochs 150 \
+--num_classes 14,18,22 --use_slot false --vis false --channel 2048 --freeze_layers 2 \
+--dataset_dir /home/wangbowen/data/bird_200/CUB_200_2011/CUB_200_2011/ \
+--iterated_evaluation_num 1
+
+
+
+python train.py --dataset CUB200 --model resnest26d --batch_size 64 --epochs 150 \
+--num_classes 3,5,7,9,11 --use_slot true --use_pre false --loss_status 1 --slots_per_class 1 \
+--power 2 --to_k_layer 1 --lambda_value 1 --vis false --channel 2048 --freeze_layers 2 \
+--dataset_dir /home/wangbowen/data/bird_200/CUB_200_2011/CUB_200_2011/ \
+--iterated_evaluation_num 5
+
+
+python train.py --dataset CUB200 --model resnest26d --batch_size 64 --epochs 150 \
+--num_classes 3,5,7,9,11 --use_slot true --use_pre false --loss_status -1 --slots_per_class 1 \
+--power 2 --to_k_layer 1 --lambda_value 1 --vis false --channel 2048 --freeze_layers 2 \
+--dataset_dir /home/wangbowen/data/bird_200/CUB_200_2011/CUB_200_2011/ \
+--iterated_evaluation_num 5

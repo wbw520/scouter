@@ -56,14 +56,13 @@ class MakeListImage():
         record = []
         for folder in folders:
             current_root = os.path.join(self.image_root, phase, folder)
-            images = get_name(current_root)
+            images = get_name(current_root, mode_folder=False)
             for img in images:
-                record.append([os.path.join(current_root, img), self.deal_label(img)])
+                record.append([os.path.join(current_root, img), self.deal_label(folder)])
         return record
 
     def deal_label(self, img_name):
-        categoty_no = img_name[:img_name.find('_')]
-        back = self.used_cat.index(categoty_no)
+        back = self.used_cat.index(img_name)
         return back
 
 

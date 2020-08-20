@@ -36,6 +36,35 @@ class MakeList(object):
         return back
 
 
+class MakeListImage():
+    """
+    this class used to make list of data for ImageNet
+    """
+    def __init__(self, args):
+        self.image_root = args.dataset_dir
+        self.category = get_name(self.image_root + "train/")
+        for c_id, c in enumerate(self.category):
+            print(c_id, '\t', c)
+
+    def get_data(self):
+        train = get_name(get_name(self.image_root + "train/"), "train")
+        val = get_name(get_name(self.image_root + "val/"), "val")
+        return train, val
+
+    def get_img(self, folders, phase):
+        record = []
+        for folder in folders:
+            current_root = os.path.join(self.image_root, phase, folder)
+            images = get_name(current_root)
+            for img in images:
+                record.append([os.path.join(current_root, img), self.deal_label(img)])
+
+    def deal_label(self, img_name):
+        categoty_no = img_name[:img_name.find('_')]
+        back = self.category.index(categoty_no)
+        return back
+
+
 class ConText(Dataset):
     """read all image name and label"""
     def __init__(self, data, transform=None):

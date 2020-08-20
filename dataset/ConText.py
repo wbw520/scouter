@@ -43,13 +43,13 @@ class MakeListImage():
     def __init__(self, args):
         self.image_root = args.dataset_dir
         self.category = get_name(self.image_root + "train/")
-        self.used_cat = self.category[:args.num_classes+1]
+        self.used_cat = self.category[:args.num_classes]
         for c_id, c in enumerate(self.used_cat):
             print(c_id, '\t', c)
 
     def get_data(self):
-        train = get_name(self.used_cat, "train")
-        val = get_name(self.used_cat, "val")
+        train = self.get_img(self.used_cat, "train")
+        val = self.get_img(self.used_cat, "val")
         return train, val
 
     def get_img(self, folders, phase):
@@ -59,6 +59,7 @@ class MakeListImage():
             images = get_name(current_root)
             for img in images:
                 record.append([os.path.join(current_root, img), self.deal_label(img)])
+        return record
 
     def deal_label(self, img_name):
         categoty_no = img_name[:img_name.find('_')]

@@ -123,6 +123,13 @@ def for_vis(args):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser('model training and evaluation script', parents=[get_args_parser()])
     args = parser.parse_args()
+
+    args_dict = vars(args)
+    args_for_evaluation = ['num_classes', 'lambda_value', 'power', 'slots_per_class']
+    args_type = [int, float, int, int]
+    for arg_id, arg in enumerate(args_for_evaluation):
+        args_dict[arg] = args_type[arg_id](args_dict[arg])
+
     for_vis(args)
 
 

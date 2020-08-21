@@ -40,7 +40,7 @@ def get_args_parser():
     parser.add_argument('--aug', default=False, type=str2bool, help='whether use pre dataset parameter')
     parser.add_argument('--grad', default=False, type=str2bool, help='whether use grad-cam for visulazition')
     parser.add_argument('--grad_min_level', default=0., type=float, help='control the grad-cam vis area')
-    parser.add_argument('--iterated_evaluation_num', default=1., type=int, help='used for iterated evaluation')
+    parser.add_argument('--iterated_evaluation_num', default=1, type=int, help='used for iterated evaluation')
 
     # slot setting
     parser.add_argument('--loss_status', default=1, type=int, help='positive or negative loss')
@@ -147,7 +147,7 @@ def main(args):
     total_time = time.time() - start_time
     total_time_str = str(datetime.timedelta(seconds=int(total_time)))
     print('Training time {}'.format(total_time_str))
-    return record["val"]["acc"][-1]
+    return [record["train"]["acc"][-1], record["val"]["acc"][-1]]
 
 
 def param_translation(args):
@@ -172,7 +172,7 @@ def param_translation(args):
             args_dict[target_arg] = int(set)
             for turn in range(circle_turns):
                 record[f"{target_arg}-"+set].append(main(args))
-            print(record)
+                print(record)
 
 
 if __name__ == '__main__':

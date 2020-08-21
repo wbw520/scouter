@@ -6,3 +6,4 @@ sloter/vis*/
 data/
 *.pyc
 .vscode/
+scripts/

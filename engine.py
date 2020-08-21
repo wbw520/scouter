@@ -28,6 +28,7 @@ def calculation(model, mode, data_loader, device, record, epoch, optimizer=None)
         logits, loss = model(inputs, labels)
         if mode == "train":
             loss.backward()
+            clip_gradient(optimizer, 1.1)
             optimizer.step()
 
         a = loss.item()
@@ -39,3 +40,17 @@ def calculation(model, mode, data_loader, device, record, epoch, optimizer=None)
     epoch_acc = round(running_corrects/L, 3)
     record[mode]["loss"].append(epoch_loss)
     record[mode]["acc"].append(epoch_acc)
+
+
+def clip_gradient(optimizer, grad_clip):
+    """
+    Clips gradients computed during backpropagation to avoid explosion of gradients.
+
+    :param optimizer: optimizer with the gradients to be clipped
+    :param grad_clip: clip value
+    """
+    for group in optimizer.param_groups:
+        for param in group["params"]:
+            if param.grad is not None:
+                param.grad.data.clamp_(-grad_clip, grad_clip)
+

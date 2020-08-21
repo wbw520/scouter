@@ -172,7 +172,7 @@ def param_translation(args):
             args_dict[target_arg] = int(set)
             for turn in range(circle_turns):
                 record[f"{target_arg}-"+set].append(main(args))
-            print(record)
+                print(record)
 
 
 if __name__ == '__main__':

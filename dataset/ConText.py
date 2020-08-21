@@ -44,8 +44,8 @@ class MakeListImage():
         self.image_root = args.dataset_dir
         self.category = get_name(self.image_root + "train/")
         self.used_cat = self.category[:args.num_classes]
-        for c_id, c in enumerate(self.used_cat):
-            print(c_id, '\t', c)
+        # for c_id, c in enumerate(self.used_cat):
+        #     print(c_id, '\t', c)
 
     def get_data(self):
         train = self.get_img(self.used_cat, "train")

@@ -28,7 +28,7 @@ def calculation(model, mode, data_loader, device, record, epoch, optimizer=None)
         logits, loss = model(inputs, labels)
         if mode == "train":
             loss.backward()
-            clip_gradient(optimizer, 1.1)
+            # clip_gradient(optimizer, 1.1)
             optimizer.step()
 
         a = loss.item()

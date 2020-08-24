@@ -32,8 +32,12 @@ def load_backbone(args):
             bone.load_state_dict(new_state_dict)
             print("load pre dataset parameter over")
         if not args.grad:
-            bone.global_pool = Identical()
-            bone.fc = Identical()
+            if 'res' in args.model:
+                bone.global_pool = Identical()
+                bone.fc = Identical()
+            elif 'efficient' in args.model:
+                bone.global_pool = Identical()
+                bone.classifier = Identical()
     return bone
 
 
@@ -57,6 +61,9 @@ class SlotModel(nn.Module):
                 self.dfs_freeze(self.backbone, args.freeze_layers)
 
     def dfs_freeze(self, model, freeze_layer_num):
+        if freeze_layer_num == 0:
+            return
+
         unfreeze_layers = ['layer4', 'layer3', 'layer2', 'layer1'][:4-freeze_layer_num]
         for name, child in model.named_children():
             skip = False

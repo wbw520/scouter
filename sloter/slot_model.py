@@ -32,7 +32,10 @@ def load_backbone(args):
             bone.load_state_dict(new_state_dict)
             print("load pre dataset parameter over")
         if not args.grad:
-            if 'res' in args.model:
+            if 'seresnet' in args.model:
+                bone.avg_pool = Identical()
+                bone.last_linear = Identical()
+            elif 'res' in args.model:
                 bone.global_pool = Identical()
                 bone.fc = Identical()
             elif 'efficient' in args.model:

@@ -25,7 +25,7 @@ from captum.attr import (
 )
 
 from tqdm import tqdm
-from dataset.ConText import ConText, MakeList
+from dataset.ConText import ConText, MakeList, MakeListImage
 from dataset.CUB200 import CUB_200
 
 
@@ -72,6 +72,16 @@ def for_vis(args):
         data = iter(data_loader_val).next()
         image = data["image"][98]#19 21  26  59  61 98 22*35 40*   41&
         label = data["label"][98]#19 21  26  59  61 98 22*35 40*   41&
+        image_orl = Image.fromarray((image.cpu().detach().numpy()*255).astype(np.uint8).transpose((1,2,0)), mode='RGB')
+        image = transform(image_orl)
+        transform = transforms.Compose([transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])])
+    elif args.dataset == 'ImageNet':
+        train, val = MakeListImage(args).get_data()
+        dataset_val = ConText(val, transform=transform)
+        data_loader_val = torch.utils.data.DataLoader(dataset_val, args.batch_size, shuffle=False, num_workers=1, pin_memory=True)
+        data = iter(data_loader_val).next()
+        image = data["image"][1]
+        label = data["label"][1]
         image_orl = Image.fromarray((image.cpu().detach().numpy()*255).astype(np.uint8).transpose((1,2,0)), mode='RGB')
         image = transform(image_orl)
         transform = transforms.Compose([transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])])

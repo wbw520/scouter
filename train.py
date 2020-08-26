@@ -161,6 +161,7 @@ def param_translation(args):
     for arg_id, arg in enumerate(args_for_evaluation):
         if args_dict[arg].find(',') > 0:
             target_arg = arg
+            target_type = args_type[arg_id]
             setting_list = args_dict[arg].split(",")
         else:
             args_dict[arg] = args_type[arg_id](args_dict[arg])
@@ -172,7 +173,7 @@ def param_translation(args):
         circle_turns = args.iterated_evaluation_num
         for set in setting_list:
             record.update({f"{target_arg}-"+set: []})
-            args_dict[target_arg] = int(set)
+            args_dict[target_arg] = target_type(set)
             for turn in range(circle_turns):
                 record[f"{target_arg}-"+set].append(main(args))
                 print(record)

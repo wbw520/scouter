@@ -44,6 +44,11 @@ def load_backbone(args):
             elif 'densenet' in args.model:
                 bone.global_pool = Identical()
                 bone.classifier = Identical()
+            elif 'mobilenet' in args.model:
+                bone.global_pool = Identical()
+                bone.conv_head = Identical()
+                bone.act2 = Identical()
+                bone.classifier = Identical()
     return bone
 
 

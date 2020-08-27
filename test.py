@@ -15,7 +15,7 @@ from torchvision import datasets, transforms
 from dataset.ConText import ConText, MakeList, MakeListImage
 from dataset.CUB200 import CUB_200
 
-def test(args, model, device, img, image, vis_id):
+def test(args, model, device, img, image, label, vis_id):
     model.to(device)
     model.eval()
     image = image.to(device, dtype=torch.float32)
@@ -43,6 +43,14 @@ def test(args, model, device, img, image, vis_id):
         #     cam = grad_cam.generate_cam(trans(image_raw_cam).unsqueeze(1).cuda(), id)
         #     save_class_activation_images(image_raw, cam, f'{id}')
 
+    if args.cal_area_size:
+        slot_image = np.array(Image.open(f'sloter/vis/slot_{str(label) if args.loss_status>0 else str(label+1)}.png'), dtype=np.uint8)
+        slot_image_size = slot_image.shape
+        attention_ratio = float(slot_image.sum()) / float(slot_image_size[0]*slot_image_size[1]*255)
+        print(f"attention_ratio: {attention_ratio}")
+
+
+
 
 def main():
     parser = argparse.ArgumentParser('model training and evaluation script', parents=[get_args_parser()])
@@ -54,10 +62,9 @@ def main():
     for arg_id, arg in enumerate(args_for_evaluation):
         args_dict[arg] = args_type[arg_id](args_dict[arg])
 
-    if args.loss_status == 1:
-        model_name = f"{args.dataset}_use_slot_checkpoint.pth"
-    else:
-        model_name = f"{args.dataset}_use_slot_negative_checkpoint.pth"
+    model_name = f"{args.dataset}_" + f"{'use_slot_' if args.use_slot else 'no_slot_'}"\
+                + f"{'negative_' if args.use_slot and args.loss_status != 1 else ''}"\
+                + f"{'for_area_size_'+str(args.lambda_value) + '_'+ str(args.slots_per_class) + '_' if args.cal_area_size else ''}" + 'checkpoint.pth'
     args.use_pre = False
 
     device = torch.device(args.device)
@@ -73,7 +80,7 @@ def main():
         data_loader_val = torch.utils.data.DataLoader(dataset_val, args.batch_size, shuffle=False, num_workers=1, pin_memory=True)
         data = iter(data_loader_val).next()
         image = data["image"][98]#19 21  26  59  61 98 22*35 40*   41&
-        label = data["label"][98]#19 21  26  59  61 98 22*35 40*   41&
+        label = data["label"][98].item()#19 21  26  59  61 98 22*35 40*   41&
         image_orl = Image.fromarray((image.cpu().detach().numpy()*255).astype(np.uint8).transpose((1,2,0)), mode='RGB')
         image = transform(image_orl)
         transform = transforms.Compose([transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])])
@@ -83,7 +90,7 @@ def main():
         data_loader_val = torch.utils.data.DataLoader(dataset_val, args.batch_size, shuffle=False, num_workers=1, pin_memory=True)
         data = iter(data_loader_val).next()
         image = data["image"][1]
-        label = data["label"][1]
+        label = data["label"][1].item()
         image_orl = Image.fromarray((image.cpu().detach().numpy()*255).astype(np.uint8).transpose((1,2,0)), mode='RGB')
         image = transform(image_orl)
         transform = transforms.Compose([transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])])
@@ -107,8 +114,8 @@ def main():
         dataset_val = CUB_200(args, train=False, transform=transform)
         data_loader_val = torch.utils.data.DataLoader(dataset_val, args.batch_size, shuffle=False, num_workers=1, pin_memory=True)
         data = iter(data_loader_val).next()
-        image = data["image"][6]#4
-        label = data["label"][6]#4
+        image = data["image"][2]#4
+        label = data["label"][2].item()#4
         image_orl = Image.fromarray((image.cpu().detach().numpy()*255).astype(np.uint8).transpose((1,2,0)), mode='RGB')
         image = transform(image_orl)
         transform = transforms.Compose([transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])])
@@ -117,13 +124,13 @@ def main():
     print("label\t", label)
     model = SlotModel(args)
     # Map model to be loaded to specified single gpu.
-    checkpoint = torch.load("saved_model/" + model_name, map_location=args.device)
+    checkpoint = torch.load(f"{args.output_dir}/" + model_name, map_location=args.device)
     # new_state_dict = OrderedDict()
     for k, v in checkpoint.items():
         print(k)
     model.load_state_dict(checkpoint["model"])
 
-    test(args, model, device, image_orl, image, vis_id=args.vis_id)
+    test(args, model, device, image_orl, image, label, vis_id=args.vis_id)
 
 
 if __name__ == '__main__':

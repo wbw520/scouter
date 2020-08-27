@@ -42,6 +42,7 @@ def get_args_parser():
     parser.add_argument('--grad', default=False, type=str2bool, help='whether use grad-cam for visulazition')
     parser.add_argument('--grad_min_level', default=0., type=float, help='control the grad-cam vis area')
     parser.add_argument('--iterated_evaluation_num', default=1, type=int, help='used for iterated evaluation')
+    parser.add_argument('--cal_area_size', default=False, type=str2bool, help='whether to calculate for area size of the attention map')
 
     # slot setting
     parser.add_argument('--loss_status', default=1, type=int, help='positive or negative loss')
@@ -130,10 +131,14 @@ def main(args):
             return main(args)
         lr_scheduler.step()
         if args.output_dir:
-            checkpoint_paths = [output_dir / (f"{args.dataset}_" + f"{'use_slot_' if args.use_slot else 'no_slot_'}" + f"{'negative_' if args.use_slot and args.loss_status != 1 else ''}" + 'checkpoint.pth')]
+            checkpoint_paths = [output_dir / (f"{args.dataset}_" + f"{'use_slot_' if args.use_slot else 'no_slot_'}"\
+                 + f"{'negative_' if args.use_slot and args.loss_status != 1 else ''}"\
+                      + f"{'for_area_size_'+str(args.lambda_value) + '_'+ str(args.slots_per_class) + '_' if args.cal_area_size else ''}" + 'checkpoint.pth')]
             # extra checkpoint before LR drop and every 10 epochs
             if (epoch + 1) % args.lr_drop == 0 or (epoch + 1) % 10 == 0:
-                checkpoint_paths.append(output_dir / (f"{args.dataset}_" + f"{'use_slot_' if args.use_slot else 'no_slot_'}" + f"{'negative_' if args.use_slot and args.loss_status != 1 else ''}" + f'checkpoint{epoch:04}.pth'))
+                checkpoint_paths.append(output_dir / (f"{args.dataset}_" + f"{'use_slot_' if args.use_slot else 'no_slot_'}"\
+                     + f"{'negative_' if args.use_slot and args.loss_status != 1 else ''}"\
+                          + f"{'for_area_size_'+str(args.lambda_value) + '_'+ str(args.slots_per_class) + '_' if args.cal_area_size else ''}" + f'checkpoint{epoch:04}.pth'))
             for checkpoint_path in checkpoint_paths:
                 prt.save_on_master({
                     'model': model_without_ddp.state_dict(),

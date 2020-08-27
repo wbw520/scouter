@@ -127,8 +127,8 @@ def main(args):
         if args.distributed:
             sampler_train.set_epoch(epoch)
         train_one_epoch(model, data_loader_train, optimizer, device, record, epoch)
-        if np.nan in record['train']["loss"]:
-            return main(args)
+        # if np.nan in record['train']["loss"]:
+        #     return main(args)
         lr_scheduler.step()
         if args.output_dir:
             checkpoint_paths = [output_dir / (f"{args.dataset}_" + f"{'use_slot_' if args.use_slot else 'no_slot_'}"\

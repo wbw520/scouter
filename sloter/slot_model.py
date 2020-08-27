@@ -41,6 +41,9 @@ def load_backbone(args):
             elif 'efficient' in args.model:
                 bone.global_pool = Identical()
                 bone.classifier = Identical()
+            elif 'densenet' in args.model:
+                bone.global_pool = Identical()
+                bone.classifier = Identical()
     return bone
 
 
@@ -50,6 +53,11 @@ class SlotModel(nn.Module):
         self.use_slot = args.use_slot
         self.backbone = load_backbone(args)
         if self.use_slot:
+            if 'densenet' in args.model:
+                self.feature_size = 8
+            else:
+                self.feature_size = 9
+
             self.channel = args.channel
             self.slots_per_class = args.slots_per_class
             self.conv1x1 = nn.Conv2d(self.channel, args.hidden_dim, kernel_size=(1, 1), stride=(1, 1))
@@ -92,7 +100,7 @@ class SlotModel(nn.Module):
     def forward(self, x, target=None):
         x = self.backbone(x)
         if self.use_slot:
-            x = self.conv1x1(x.view(x.size(0), self.channel, 9, 9))
+            x = self.conv1x1(x.view(x.size(0), self.channel, self.feature_size, self.feature_size))
             x = torch.relu(x)
             pe = self.position_emb(x)
             x_pe = x + pe

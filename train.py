@@ -11,6 +11,9 @@ from tools.calculate_tool import MetricLog
 import datetime
 import time
 import numpy as np
+from thop import profile, clever_format
+import tensorly as tl
+# from fvcore.nn.flop_count import flop_count
 
 
 def get_args_parser():
@@ -43,6 +46,7 @@ def get_args_parser():
     parser.add_argument('--grad_min_level', default=0., type=float, help='control the grad-cam vis area')
     parser.add_argument('--iterated_evaluation_num', default=1, type=int, help='used for iterated evaluation')
     parser.add_argument('--cal_area_size', default=False, type=str2bool, help='whether to calculate for area size of the attention map')
+    parser.add_argument('--thop', default=False, type=str2bool, help='whether to only calculate for the model costs (no training)')
 
     # slot setting
     parser.add_argument('--loss_status', default=1, type=int, help='positive or negative loss')
@@ -86,6 +90,65 @@ def main(args):
     print("train model: " + f"{'use slot ' if args.use_slot else 'without slot '}" + f"{'negetive loss' if args.use_slot and args.loss_status != 1 else 'positive loss'}")
     model.to(device)
     model_without_ddp = model
+
+    if args.thop:
+        def freeze_layers(model):
+            for layer in model.children():
+                if isinstance(layer, torch.nn.Sequential):
+                    for sub_layer in layer:
+                        sub_layer.requires_grad = False
+                        for parameter in sub_layer.parameters():
+                            parameter.requires_grad = False
+                else:
+                    layer.requires_grad = False
+                    for parameter in layer.parameters():
+                        parameter.requires_grad = False
+
+        def unfreeze_layers(model):
+            for layer in model.children():
+                if isinstance(layer, torch.nn.Sequential):
+                    for sub_layer in layer:
+                        sub_layer.requires_grad = True
+                        for parameter in sub_layer.parameters():
+                            parameter.requires_grad = True
+                else:
+                    layer.requires_grad = True
+                    for parameter in layer.parameters():
+                        parameter.requires_grad = True
+
+        unfreeze_layers(model)
+        n_parameters = sum(p.numel() for p in model.parameters() if p.requires_grad)
+        print(float(n_parameters)/1000000, 'M')
+
+        
+        freeze_layers(model)
+        model.cpu()
+        model.eval()
+        tl.set_backend('pytorch')
+
+        input_ = torch.randn(1, 3, 260, 260)
+
+        # with profiler.profile(record_shapes=True) as prof:
+        #     with profiler.record_function("model_inference"):
+        #         model(input_)
+        # print(prof.key_averages().table(sort_by="cpu_time_total", row_limit=10))
+
+        # gflop_dict, _ = flop_count(model, (input_,))
+        # gflops = sum(gflop_dict.values())
+        # print(gflop_dict)
+        # print(gflops)
+
+
+        flops_list = []
+        params_list = []
+        acc_list = []
+
+        flops, params = profile(model, inputs=(input_, ))
+        flops_list.append(flops)
+        params_list.append(params)
+        flops, params = clever_format([flops, params], "%.3f")
+        print(float(n_parameters)/1000000, 'M', params, flops)
+        return
 
     if args.distributed:
         model = torch.nn.parallel.DistributedDataParallel(model, device_ids=[args.gpu], find_unused_parameters=True)

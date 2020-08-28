@@ -148,7 +148,7 @@ def main(args):
         params_list.append(params)
         flops, params = clever_format([flops, params], "%.3f")
         print(float(n_parameters)/1000000, 'M', params, flops)
-        return
+        return [float(n_parameters)/1000000, flops_list[-1]/1000000000]
 
     if args.distributed:
         model = torch.nn.parallel.DistributedDataParallel(model, device_ids=[args.gpu], find_unused_parameters=True)

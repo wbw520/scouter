@@ -88,9 +88,13 @@ def main():
         train, val = MakeListImage(args).get_data()
         dataset_val = ConText(val, transform=transform)
         data_loader_val = torch.utils.data.DataLoader(dataset_val, args.batch_size, shuffle=False, num_workers=1, pin_memory=True)
-        data = iter(data_loader_val).next()
-        image = data["image"][1]
-        label = data["label"][1].item()
+        iter_loader = iter(data_loader_val)
+        # 2(61) 1(1) 8(2) 7(1) 7(2) 1(62)
+        for i in range(0, 3):
+            # print(i)
+            data = iter_loader.next()
+        image = data["image"][61]
+        label = data["label"][61].item()
         image_orl = Image.fromarray((image.cpu().detach().numpy()*255).astype(np.uint8).transpose((1,2,0)), mode='RGB')
         image = transform(image_orl)
         transform = transforms.Compose([transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])])
@@ -114,8 +118,8 @@ def main():
         dataset_val = CUB_200(args, train=False, transform=transform)
         data_loader_val = torch.utils.data.DataLoader(dataset_val, args.batch_size, shuffle=False, num_workers=1, pin_memory=True)
         data = iter(data_loader_val).next()
-        image = data["image"][2]#4
-        label = data["label"][2].item()#4
+        image = data["image"][18]#4
+        label = data["label"][18].item()#4
         image_orl = Image.fromarray((image.cpu().detach().numpy()*255).astype(np.uint8).transpose((1,2,0)), mode='RGB')
         image = transform(image_orl)
         transform = transforms.Compose([transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])])

@@ -32,6 +32,9 @@ from dataset.CUB200 import CUB_200
 def show_cam_on_image(img, masks, target_index, save_name):
     final = np.uint8(255*masks)
 
+    mask_image = Image.fromarray(final, mode='L')
+    mask_image.save(f'sloter/vis/{save_name}_{target_index}_mask.png')
+
     heatmap_only, heatmap_on_image = apply_colormap_on_image(img, final, 'jet')
     heatmap_on_image.save(f'sloter/vis/{save_name}_{target_index}.png')
 
@@ -79,9 +82,11 @@ def for_vis(args):
         train, val = MakeListImage(args).get_data()
         dataset_val = ConText(val, transform=transform)
         data_loader_val = torch.utils.data.DataLoader(dataset_val, args.batch_size, shuffle=False, num_workers=1, pin_memory=True)
-        data = iter(data_loader_val).next()
+        iter_loader = iter(data_loader_val)
+        for i in range(0, 7):
+            data = iter_loader.next()
         image = data["image"][1]
-        label = data["label"][1]
+        label = data["label"][1].item()
         image_orl = Image.fromarray((image.cpu().detach().numpy()*255).astype(np.uint8).transpose((1,2,0)), mode='RGB')
         image = transform(image_orl)
         transform = transforms.Compose([transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])])
@@ -96,19 +101,19 @@ def for_vis(args):
         transform = transforms.Compose([transforms.Normalize((0.1307,), (0.3081,))])
     # CUB
     elif args.dataset == 'CUB200':
-        image_path = os.path.join(args.dataset_dir, "images", "024.Red_faced_Cormorant", "Red_Faced_Cormorant_0007_796280.jpg")
-        image_orl = Image.open(image_path).convert('RGB')
-        image = transform(image_orl)
-        transform = transforms.Compose([transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])])
-        label = ''
-        # dataset_val = CUB_200(args, train=False, transform=transform)
-        # data_loader_val = torch.utils.data.DataLoader(dataset_val, args.batch_size, shuffle=False, num_workers=1, pin_memory=True)
-        # data = iter(data_loader_val).next()
-        # image = data["image"][6]
-        # label = data["label"][6]
-        # image_orl = Image.fromarray((image.cpu().detach().numpy()*255).astype(np.uint8).transpose((1,2,0)), mode='RGB')
+        # image_path = os.path.join(args.dataset_dir, "images", "024.Red_faced_Cormorant", "Red_Faced_Cormorant_0007_796280.jpg")
+        # image_orl = Image.open(image_path).convert('RGB')
         # image = transform(image_orl)
         # transform = transforms.Compose([transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])])
+        # label = ''
+        dataset_val = CUB_200(args, train=False, transform=transform)
+        data_loader_val = torch.utils.data.DataLoader(dataset_val, args.batch_size, shuffle=False, num_workers=1, pin_memory=True)
+        data = iter(data_loader_val).next()
+        image = data["image"][18]
+        label = data["label"][18]
+        image_orl = Image.fromarray((image.cpu().detach().numpy()*255).astype(np.uint8).transpose((1,2,0)), mode='RGB')
+        image = transform(image_orl)
+        transform = transforms.Compose([transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])])
     image = transform(image)
     image = image.unsqueeze(0)
 
@@ -124,8 +129,8 @@ def for_vis(args):
     predicted_label = str(pred_label_idx.item() + 1)
     print('Predicted:', predicted_label, '(', prediction_score.squeeze().item(), ')')
 
-    gradients = LayerGradCam(model, layer=model.layer4)
-    make_grad(gradients, image, image_orl, args.grad_min_level, 'GradCam')
+    # gradients = LayerGradCam(model, layer=model.layer4)
+    # make_grad(gradients, image, image_orl, args.grad_min_level, 'GradCam')
     gradients = LayerDeepLift(model, layer=model.layer4)
     make_grad(gradients, image, image_orl, args.grad_min_level, 'DeepLIFT')
 

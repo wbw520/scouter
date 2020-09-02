@@ -139,3 +139,16 @@ python captum_vis.py --dataset CUB200 --model resnest50d --batch_size 150 \
 --num_classes 25 --grad true --use_pre true \
 --dataset_dir /home/wangbowen/data/bird_200/CUB_200_2011/CUB_200_2011/
 ```
+
+
+
+Imagenet
+
+python test.py --dataset ImageNet --model resnest26d --batch_size 70 --epochs 20 \
+--num_classes 100 --use_slot true --use_pre false --loss_status 1 --slots_per_class 1 \
+--power 2 --to_k_layer 3 --lambda_value 1 --vis true --channel 2048 --freeze_layers 0 \
+--dataset_dir /home/li/data/imagenet/ILSVRC/Data/CLS-LOC/
+
+python captum_vis.py --dataset ImageNet --model resnest26d --batch_size 70 \
+--num_classes 100 --grad true --use_pre true \
+--dataset_dir /home/li/data/imagenet/ILSVRC/Data/CLS-LOC/

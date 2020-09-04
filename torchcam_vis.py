@@ -119,9 +119,9 @@ def for_vis(args):
         transform = transforms.Compose([transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])])
     image = transform(image)
     image = image.unsqueeze(0)
-
+    device = torch.device(args.device)
     model = load_backbone(args)
-
+    model = model.to(device)
     RESNET_CONFIG = dict(input_layer='conv1', conv_layer='layer4', fc_layer='fc')
 
     MODEL_CONFIG = {**RESNET_CONFIG}
@@ -144,17 +144,15 @@ def for_vis(args):
     for idx, extractor in enumerate(cam_extractors):
         model.zero_grad()
 
-        output = model(image)
-        output = F.softmax(output, dim=1)
-        print(output)
-        print(output.size())
+        output1 = model(image.to(device))
+        output = F.softmax(output1, dim=1)
         prediction_score, pred_label_idx = torch.topk(output, 1)
 
         pred_label_idx.squeeze_()
         predicted_label = str(pred_label_idx.item() + 1)
         print('Predicted:', predicted_label, '(', prediction_score.squeeze().item(), ')')
 
-        make_grad(extractor, output, image_orl, args.grad_min_level, cam_extractors_names[idx])
+        make_grad(extractor, output1, image_orl, args.grad_min_level, cam_extractors_names[idx])
         extractor.clear_hooks()
 
 

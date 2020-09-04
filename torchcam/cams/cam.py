@@ -99,9 +99,11 @@ class _CAM(object):
 
         # Get map weight
         weights = self._get_weights(class_idx, scores)
-
-        # Perform the weighted combination to get the CAM
-        batch_cams = (weights.unsqueeze(-1).unsqueeze(-1) * self.hook_a.squeeze(0)).sum(dim=0)
+        # # Perform the weighted combination to get the CAM
+        a = weights.unsqueeze(-1).unsqueeze(-1) * self.hook_a.squeeze(0)
+        zero = torch.ones_like(a)
+        a = torch.where(torch.isnan(a), zero, a)
+        batch_cams = a.sum(dim=0)
 
         if self._relu:
             batch_cams = F.relu(batch_cams, inplace=True)

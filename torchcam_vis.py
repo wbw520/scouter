@@ -133,13 +133,15 @@ def for_vis(args):
     # Hook the corresponding layer in the model
     cam_extractors = [CAM(model, conv_layer, fc_layer), GradCAM(model, conv_layer),
                       GradCAMpp(model, conv_layer), SmoothGradCAMpp(model, conv_layer, input_layer),
-                      # SSCAM(model, conv_layer, input_layer),
-                      #ISSCAM(model, conv_layer, input_layer), ScoreCAM(model, conv_layer, input_layer),
+                      SSCAM(model, conv_layer, input_layer),
+                      ISSCAM(model, conv_layer, input_layer), 
+                      ScoreCAM(model, conv_layer, input_layer),
                       ]
     cam_extractors_names = ['CAM', 'GradCAM',
                       'GradCAMpp', 'SmoothGradCAMpp',
-                      #'SSCAM',
-                      #'ISSCAM', 'ScoreCAM'
+                      'SSCAM',
+                      'ISSCAM', 
+                      'ScoreCAM'
                       ]                
     for idx, extractor in enumerate(cam_extractors):
         model.zero_grad()

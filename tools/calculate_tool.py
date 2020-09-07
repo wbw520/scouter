@@ -17,11 +17,15 @@ def evaluateTop5(logits, labels):
 
 class MetricLog():
     def __init__(self):
-        self.record = {"train": {"loss": [], "acc": []},
-                       "val": {"loss": [], "acc": []}}
+        self.record = {"train": {"loss": [], "acc": [], "log_loss": [], "att_loss": []},
+                       "val": {"loss": [], "acc": [], "log_loss": [], "att_loss": []}}
 
     def print_metric(self):
         print("train loss:", self.record["train"]["loss"])
         print("val loss:", self.record["val"]["loss"])
         print("train acc:", self.record["train"]["acc"])
         print("val acc:", self.record["val"]["acc"])
+        print("train CE loss", self.record["train"]["log_loss"])
+        print("val CE loss", self.record["val"]["log_loss"])
+        print("train attention loss", self.record["train"]["att_loss"])
+        print("val attention loss", self.record["val"]["att_loss"])

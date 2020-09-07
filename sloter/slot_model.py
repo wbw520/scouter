@@ -119,9 +119,10 @@ class SlotModel(nn.Module):
         if target is not None:
             if self.use_slot:
                 loss = F.nll_loss(output, target) + self.lambda_value * attn_loss
+                return [output, [loss, F.nll_loss(output, target), attn_loss]]
             else:
                 loss = F.nll_loss(output, target)
-            return [output, loss]
+                return [output, [loss]]
 
         return output
 

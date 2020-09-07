@@ -18,6 +18,8 @@ def calculation(model, mode, data_loader, device, record, epoch, optimizer=None)
     L = len(data_loader)
     running_loss = 0.0
     running_corrects = 0.0
+    running_att_loss = 0.0
+    running_log_loss = 0.0
     print("start " + mode + " :" + str(epoch))
     for i_batch, sample_batch in enumerate(tqdm(data_loader)):
         inputs = sample_batch["image"].to(device, dtype=torch.float32)
@@ -25,7 +27,8 @@ def calculation(model, mode, data_loader, device, record, epoch, optimizer=None)
 
         if mode == "train":
             optimizer.zero_grad()
-        logits, loss = model(inputs, labels)
+        logits, loss_list = model(inputs, labels)
+        loss = loss_list[0]
         if mode == "train":
             loss.backward()
             # clip_gradient(optimizer, 1.1)
@@ -33,13 +36,19 @@ def calculation(model, mode, data_loader, device, record, epoch, optimizer=None)
 
         a = loss.item()
         running_loss += a
+        running_att_loss += loss_list[2]
+        running_log_loss += loss_list[1]
         running_corrects += cal.evaluateTop1(logits, labels)
         # if i_batch % 10 == 0:
         #     print("epoch: {} {}/{} Loss: {:.4f}".format(epoch, i_batch, L-1, a))
     epoch_loss = round(running_loss/L, 3)
+    epoch_loss_log = round(running_log_loss/L, 3)
+    epoch_loss_att = round(running_att_loss/L, 3)
     epoch_acc = round(running_corrects/L, 3)
     record[mode]["loss"].append(epoch_loss)
     record[mode]["acc"].append(epoch_acc)
+    record[mode]["log_loss"].append(epoch_loss_log)
+    record[mode]["att_loss"].append(epoch_loss_att)
 
 
 def clip_gradient(optimizer, grad_clip):

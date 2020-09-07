@@ -89,7 +89,7 @@ def main():
         dataset_val = ConText(val, transform=transform)
         data_loader_val = torch.utils.data.DataLoader(dataset_val, args.batch_size, shuffle=False, num_workers=1, pin_memory=True)
         iter_loader = iter(data_loader_val)
-        # 2(61) 1(1) 8(2) 7(1) 7(2) 1(62)
+        # 2(61) 1(1) 8(2) 7(1) 7(2) 1(62) 3(61)
         for i in range(0, 3):
             # print(i)
             data = iter_loader.next()

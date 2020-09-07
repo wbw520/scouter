@@ -36,8 +36,8 @@ def calculation(model, mode, data_loader, device, record, epoch, optimizer=None)
 
         a = loss.item()
         running_loss += a
-        running_att_loss += loss_list[2]
-        running_log_loss += loss_list[1]
+        running_att_loss += loss_list[2].item()
+        running_log_loss += loss_list[1].item()
         running_corrects += cal.evaluateTop1(logits, labels)
         # if i_batch % 10 == 0:
         #     print("epoch: {} {}/{} Loss: {:.4f}".format(epoch, i_batch, L-1, a))

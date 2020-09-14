@@ -90,11 +90,18 @@ def main():
         data_loader_val = torch.utils.data.DataLoader(dataset_val, args.batch_size, shuffle=False, num_workers=1, pin_memory=True)
         iter_loader = iter(data_loader_val)
         # 2(61) 1(1) 8(2) 7(1) 7(2) 1(62) 3(61)
-        for i in range(0, 3):
+        # 50: 1(0) 2(2) 3(0)
+        # 500: 3(2) 4(0) 6(0)
+        # - 200: 7(1)6(0)
+        # - 70: 3(5)3(32)
+        # - 340: 3(31)3(0)  5(30)4(57)
+        # - 365: 3(9)2(13)
+        # - 425: 4(2)5(14)
+        for i in range(0, 1):
             # print(i)
             data = iter_loader.next()
-        image = data["image"][61]
-        label = data["label"][61].item()
+        image = data["image"][0]
+        label = data["label"][0].item()
         image_orl = Image.fromarray((image.cpu().detach().numpy()*255).astype(np.uint8).transpose((1,2,0)), mode='RGB')
         image = transform(image_orl)
         transform = transforms.Compose([transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])])

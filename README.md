@@ -1,4 +1,4 @@
-###### Distributed Training (if it is desired)
+###### Distributed Training (if desired)
 
 ```bash
 python -m torch.distributed.launch --nproc_per_node=4 --use_env train.py --world_size 4

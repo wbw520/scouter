@@ -7,3 +7,4 @@ data/
 *.pyc
 .vscode/
 scripts/
+temp*

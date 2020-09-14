@@ -85,9 +85,3 @@ def build_position_encoding(position_embedding, hidden_dim):
         raise ValueError(f"not supported {position_embedding}")
 
     return position_embedding
-
-
-# inputs = torch.randn(2, 100, 8, 8)
-# wbw = PositionEmbeddingSine(256, normalize=True)
-# out = wbw(inputs)
-# print(out.size())

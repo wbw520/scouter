@@ -125,34 +125,3 @@ class SlotModel(nn.Module):
                 return [output, [loss]]
 
         return output
-
-
-# def get_args_parser():
-#     parser = argparse.ArgumentParser('Set bird model', add_help=False)
-#     parser.add_argument('--dataset_dir', default='/home/wbw/PAN/bird_200/CUB_200_2011',
-#                         help='path for save data')
-#     parser.add_argument('--model', default="efficientnet_b2", type=str)
-#
-#     # training set
-#     parser.add_argument('--lr', default=0.0001, type=float)
-#     parser.add_argument('--lr_drop', default=100, type=int)
-#     parser.add_argument('--batch_size', default=16, type=int)
-#     parser.add_argument('--weight_decay', default=0.0001, type=float)
-#     parser.add_argument('--data_mode', default="rgb", type=str)
-#     parser.add_argument('--epochs', default=200, type=int)
-#     parser.add_argument("--num_classes", default=100, type=int)
-#     parser.add_argument('--img_size', default=260, help='path for save data')
-#     parser.add_argument('--pre_trained', default=True, help='whether use pre parameter for backbone')
-#
-#     # slot setting
-#     parser.add_argument('--slots_per_class', default=1, help='number of slot for each class')
-#     parser.add_argument('--vis', default=False, help='whether save slot visualization')
-#     parser.add_argument('--vis_id', default=0, help='choose image to visualization')
-#     return parser
-#
-#
-# if __name__ == '__main__':
-#     parser = argparse.ArgumentParser('model training and evaluation script', parents=[get_args_parser()])
-#     args = parser.parse_args()
-#     model = SlotModel(args)
-#     print(model)

@@ -13,7 +13,6 @@ import time
 import numpy as np
 from thop import profile, clever_format
 import tensorly as tl
-# from fvcore.nn.flop_count import flop_count
 
 
 def get_args_parser():
@@ -25,7 +24,7 @@ def get_args_parser():
         else:
             raise argparse.ArgumentTypeError('Unsupported value encountered.')
 
-    parser = argparse.ArgumentParser('Set 3D model', add_help=False)
+    parser = argparse.ArgumentParser('Set SCOUTER model', add_help=False)
     parser.add_argument('--model', default="resnet18", type=str)
     parser.add_argument('--dataset', default="MNIST", type=str)
     parser.add_argument('--channel', default=512, type=int)
@@ -60,10 +59,8 @@ def get_args_parser():
     parser.add_argument('--vis_id', default=0, type=int, help='choose image to visualization')
 
     # data/machine set
-    parser.add_argument('--dataset_dir', default='/home/wbw/PAN/bird_200/CUB_200_2011/CUB_200_2011/',
+    parser.add_argument('--dataset_dir', default='../PAN/bird_200/CUB_200_2011/CUB_200_2011/',
                         help='path for save data')
-    # parser.add_argument('--dataset_dir', default='/home/wbw/PAN/board_images/data/JPEGImages/',
-    #                     help='path for save data')
     parser.add_argument('--output_dir', default='saved_model/',
                         help='path where to save, empty for no saving')
     parser.add_argument('--pre_dir', default='pre_model/',
@@ -128,17 +125,6 @@ def main(args):
 
         input_ = torch.randn(1, 3, 260, 260)
 
-        # with profiler.profile(record_shapes=True) as prof:
-        #     with profiler.record_function("model_inference"):
-        #         model(input_)
-        # print(prof.key_averages().table(sort_by="cpu_time_total", row_limit=10))
-
-        # gflop_dict, _ = flop_count(model, (input_,))
-        # gflops = sum(gflop_dict.values())
-        # print(gflop_dict)
-        # print(gflops)
-
-
         flops_list = []
         params_list = []
         acc_list = []
@@ -190,8 +176,6 @@ def main(args):
         if args.distributed:
             sampler_train.set_epoch(epoch)
         train_one_epoch(model, data_loader_train, optimizer, device, record, epoch)
-        # if np.nan in record['train']["loss"]:
-        #     return main(args)
         lr_scheduler.step()
         if args.output_dir:
             checkpoint_paths = [output_dir / (f"{args.dataset}_" + f"{'use_slot_' if args.use_slot else 'no_slot_'}"\
@@ -212,7 +196,6 @@ def main(args):
                 }, checkpoint_path)
 
         evaluate(model, data_loader_val, device, record, epoch)
-
         log.print_metric()
 
     total_time = time.time() - start_time

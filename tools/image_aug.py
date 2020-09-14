@@ -32,8 +32,8 @@ class ImageAugment(object):
         image_aug = sequence(image=image)
         return image_aug
 
-    def rd(self, hehe):
-        seed = np.random.randint(0, hehe)
+    def rd(self, rand_max):
+        seed = np.random.randint(0, rand_max)
         return seed
 
     def aug_sequence(self):

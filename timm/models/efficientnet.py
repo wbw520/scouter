@@ -1770,9 +1770,3 @@ def tf_mixnet_l(pretrained=False, **kwargs):
     model = _gen_mixnet_m(
         'tf_mixnet_l', channel_multiplier=1.3, pretrained=pretrained, **kwargs)
     return model
-
-
-# input = torch.rand((4, 3, 260, 260))
-# wbw = efficientnet_b2_slot(pretrained=False)
-# print(wbw)
-# print(wbw(input).size())

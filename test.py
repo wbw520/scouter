@@ -29,27 +29,19 @@ def test(args, model, device, img, image, label, vis_id):
     image_raw.save('sloter/vis/image.png')
     print(torch.argmax(output[vis_id]).item())
     model.train()
-    # grad_cam = GradCam(model, target_layer='conv2', cam_extractor=CamExtractor)
 
     for id in range(args.num_classes):
         image_raw = Image.open('sloter/vis/image.png').convert('RGB')
-        # image_raw_cam = Image.open('vis/image.png')
         slot_image = np.array(Image.open(f'sloter/vis/slot_{id}.png').resize(image_raw.size, resample=Image.BILINEAR), dtype=np.uint8)
 
         heatmap_only, heatmap_on_image = apply_colormap_on_image(image_raw, slot_image, 'jet')
         heatmap_on_image.save(f'sloter/vis/slot_mask_{id}.png')
-
-        # if id < 10:
-        #     cam = grad_cam.generate_cam(trans(image_raw_cam).unsqueeze(1).cuda(), id)
-        #     save_class_activation_images(image_raw, cam, f'{id}')
 
     if args.cal_area_size:
         slot_image = np.array(Image.open(f'sloter/vis/slot_{str(label) if args.loss_status>0 else str(label+1)}.png'), dtype=np.uint8)
         slot_image_size = slot_image.shape
         attention_ratio = float(slot_image.sum()) / float(slot_image_size[0]*slot_image_size[1]*255)
         print(f"attention_ratio: {attention_ratio}")
-
-
 
 
 def main():
@@ -79,8 +71,8 @@ def main():
         dataset_val = ConText(val, transform=transform)
         data_loader_val = torch.utils.data.DataLoader(dataset_val, args.batch_size, shuffle=False, num_workers=1, pin_memory=True)
         data = iter(data_loader_val).next()
-        image = data["image"][98]#19 21  26  59  61 98 22*35 40*   41&
-        label = data["label"][98].item()#19 21  26  59  61 98 22*35 40*   41&
+        image = data["image"][0]
+        label = data["label"][0].item()
         image_orl = Image.fromarray((image.cpu().detach().numpy()*255).astype(np.uint8).transpose((1,2,0)), mode='RGB')
         image = transform(image_orl)
         transform = transforms.Compose([transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])])
@@ -89,16 +81,7 @@ def main():
         dataset_val = ConText(val, transform=transform)
         data_loader_val = torch.utils.data.DataLoader(dataset_val, args.batch_size, shuffle=False, num_workers=1, pin_memory=True)
         iter_loader = iter(data_loader_val)
-        # 2(61) 1(1) 8(2) 7(1) 7(2) 1(62) 3(61)
-        # 50: 1(0) 2(2) 3(0)
-        # 500: 3(2) 4(0) 6(0)
-        # - 200: 7(1)6(0)
-        # - 70: 3(5)3(32)
-        # - 340: 3(31)3(0)  5(30)4(57)
-        # - 365: 3(9)2(13)
-        # - 425: 4(2)5(14)
         for i in range(0, 1):
-            # print(i)
             data = iter_loader.next()
         image = data["image"][0]
         label = data["label"][0].item()
@@ -116,17 +99,11 @@ def main():
         transform = transforms.Compose([transforms.Normalize((0.1307,), (0.3081,))])
     # CUB
     elif args.dataset == 'CUB200':
-        # image_path = os.path.join(args.dataset_dir, "images", "001.Black_footed_Albatross", "Black_Footed_Albatross_0001_796111.jpg")
-        # # image_path = os.path.join(args.dataset_dir, "images", "024.Red_faced_Cormorant", "Red_Faced_Cormorant_0007_796280.jpg")
-        # image_orl = Image.open(image_path).convert('RGB')
-        # image = transform(image_orl)
-        # transform = transforms.Compose([transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])])
-        # label = ''
         dataset_val = CUB_200(args, train=False, transform=transform)
         data_loader_val = torch.utils.data.DataLoader(dataset_val, args.batch_size, shuffle=False, num_workers=1, pin_memory=True)
         data = iter(data_loader_val).next()
-        image = data["image"][18]#4
-        label = data["label"][18].item()#4
+        image = data["image"][0]
+        label = data["label"][0].item()
         image_orl = Image.fromarray((image.cpu().detach().numpy()*255).astype(np.uint8).transpose((1,2,0)), mode='RGB')
         image = transform(image_orl)
         transform = transforms.Compose([transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])])
@@ -136,7 +113,6 @@ def main():
     model = SlotModel(args)
     # Map model to be loaded to specified single gpu.
     checkpoint = torch.load(f"{args.output_dir}/" + model_name, map_location=args.device)
-    # new_state_dict = OrderedDict()
     for k, v in checkpoint.items():
         print(k)
     model.load_state_dict(checkpoint["model"])
@@ -146,5 +122,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
-

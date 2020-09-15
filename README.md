@@ -1,6 +1,7 @@
 
 
-# SCOUTER: Slot Attention-based Classifier for Explainable Image Recognition
+# SCOUTER: Slot Attention-based Classifier for Explainable Image Recognition 
+[PDF](https://arxiv.org/abs/2009.06138)
 
 ![Figure](fig/zfig_story.jpg)
 
@@ -235,3 +236,7 @@ python torchcam_vis.py --dataset CUB200 --model resnest50d --batch_size 150 \
 --num_classes 25 --grad true --use_pre true \
 --dataset_dir ../data/bird_200/CUB_200_2011/CUB_200_2011/
 ```
+
+## Acknowledgements
+
+This work was supported by Council for Science, Technology and Innovation (CSTI), cross-ministerial Strategic Innovation Promotion Program (SIP), "Innovative AI Hospital System" (Funding Agency: National Institute of Biomedical Innovation, Health and Nutrition (NIBIOHN)).

@@ -240,3 +240,17 @@ python torchcam_vis.py --dataset CUB200 --model resnest50d --batch_size 150 \
 ## Acknowledgements
 
 This work was supported by Council for Science, Technology and Innovation (CSTI), cross-ministerial Strategic Innovation Promotion Program (SIP), "Innovative AI Hospital System" (Funding Agency: National Institute of Biomedical Innovation, Health and Nutrition (NIBIOHN)).
+
+## Publication
+
+If you want to use this work, please consider citing the following paper.
+```
+@misc{li2020scouter,
+    title={SCOUTER: Slot Attention-based Classifier for Explainable Image Recognition},
+    author={Liangzhi Li and Bowen Wang and Manisha Verma and Yuta Nakashima and Ryo Kawasaki and Hajime Nagahara},
+    year={2020},
+    eprint={2009.06138},
+    archivePrefix={arXiv},
+    primaryClass={cs.CV}
+}
+```

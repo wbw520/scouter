@@ -79,7 +79,7 @@ class ConText(Dataset):
         while not os.path.exists(self.all_item[item_id][0]):
             raise ("not exist image:" + self.all_item[item_id][0])
         image_path = self.all_item[item_id][0]
-        image = Image.open(image_path)
+        image = Image.open(image_path).convert('RGB')
         if image.mode == 'L':
             image = image.convert('RGB')
         if self.transform:

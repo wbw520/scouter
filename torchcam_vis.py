@@ -16,6 +16,9 @@ from tqdm import tqdm
 from dataset.ConText import ConText, MakeList, MakeListImage
 from dataset.CUB200 import CUB_200
 
+from torchcam.IBA.pytorch import IBA, tensor_to_np_img, get_imagenet_folder, imagenet_transform
+from torchcam.IBA.utils import plot_saliency_map, to_unit_interval, load_monkeys
+from torch.utils.data import DataLoader
 
 def show_cam_on_image(img, masks, target_index, save_name):
     final = np.uint8(255*masks)
@@ -99,6 +102,40 @@ def for_vis(args):
     device = torch.device(args.device)
     model = load_backbone(args)
     model = model.to(device)
+
+    imagenet_dir = '../../data/imagenet/ILSVRC/Data/CLS-LOC/validation'
+    # Add a Per-Sample Bottleneck at layer conv4_1
+    iba = IBA(model.layer4)
+
+    # Estimate the mean and variance of the feature map at this layer.
+    val_set = get_imagenet_folder(imagenet_dir)
+    val_loader = DataLoader(val_set, batch_size=64, shuffle=True, num_workers=4)
+    iba.estimate(model, val_loader, n_samples=5000, progbar=True)
+
+    for target_index in tqdm(range(0, args.num_classes)):
+        # Closure that returns the loss for one batch
+        model_loss_closure = lambda x: -torch.log_softmax(model(x.cuda()), dim=1)[:, target_index].mean()
+        # Explain class target for the given image
+        saliency_map = iba.analyze(image, model_loss_closure, beta=10)
+        # display result
+        model_loss_closure = lambda x: -torch.log_softmax(model(x.cuda()), 1)[:, target_index].mean()
+        heatmap = iba.analyze(image, model_loss_closure )
+
+        mask = heatmap
+        mask = np.maximum(mask, 0)
+        mask = mask - np.min(mask)
+        mask = mask / np.max(mask)
+        mask = np.maximum(mask, args.grad_min_level)
+        mask = mask - np.min(mask)
+        mask = mask / np.max(mask)
+
+        image_orl = image_orl.resize((args.img_size, args.img_size), Image.BILINEAR)
+        # heatmap = np.array(heatmap)
+        show_cam_on_image(image_orl, mask, target_index, 'IBA')
+        # plot_saliency_map(heatmap, tensor_to_np_img(image[0]))
+        # sjlkdfl()
+
+
     RESNET_CONFIG = dict(input_layer='conv1', conv_layer='layer4', fc_layer='fc')
 
     MODEL_CONFIG = {**RESNET_CONFIG}
@@ -106,6 +143,9 @@ def for_vis(args):
     input_layer = MODEL_CONFIG['input_layer']
     fc_layer = MODEL_CONFIG['fc_layer']
 
+    del model
+    model = load_backbone(args)
+    model = model.to(device)
     model.eval()
     # Hook the corresponding layer in the model
     cam_extractors = [CAM(model, conv_layer, fc_layer), GradCAM(model, conv_layer),
@@ -128,7 +168,7 @@ def for_vis(args):
         prediction_score, pred_label_idx = torch.topk(output, 1)
 
         pred_label_idx.squeeze_()
-        predicted_label = str(pred_label_idx.item() + 1)
+        predicted_label = str(pred_label_idx.item())
         print('Predicted:', predicted_label, '(', prediction_score.squeeze().item(), ')')
 
         make_grad(extractor, output1, image_orl, args.grad_min_level, cam_extractors_names[idx])

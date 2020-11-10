@@ -133,8 +133,6 @@ def for_vis(args):
         # heatmap = np.array(heatmap)
         show_cam_on_image(image_orl, mask, target_index, 'IBA')
         # plot_saliency_map(heatmap, tensor_to_np_img(image[0]))
-        # sjlkdfl()
-
 
     RESNET_CONFIG = dict(input_layer='conv1', conv_layer='layer4', fc_layer='fc')
 

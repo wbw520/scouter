@@ -16,6 +16,8 @@ from tqdm import tqdm
 from dataset.ConText import ConText, MakeList, MakeListImage
 from dataset.CUB200 import CUB_200
 
+from torchray.attribution.rise import rise
+from torchray.attribution.extremal_perturbation import extremal_perturbation
 from torchcam.IBA.pytorch import IBA, tensor_to_np_img, get_imagenet_folder, imagenet_transform
 from torchcam.IBA.utils import plot_saliency_map, to_unit_interval, load_monkeys
 from torch.utils.data import DataLoader
@@ -100,8 +102,59 @@ def for_vis(args):
     image = transform(image)
     image = image.unsqueeze(0)
     device = torch.device(args.device)
+
+
+    ### torchray (RISE)
     model = load_backbone(args)
     model = model.to(device)
+    model.eval()
+
+    for target_index in tqdm(range(0, args.num_classes)):
+        mask = rise(model, image.to(device), target_index)
+        mask = mask.cpu().numpy()[0,0]
+
+        mask = np.maximum(mask, 0)
+        mask = mask - np.min(mask)
+        mask = mask / np.max(mask)
+        mask = np.maximum(mask, args.grad_min_level)
+        mask = mask - np.min(mask)
+        mask = mask / np.max(mask)
+
+        image_orl = image_orl.resize((args.img_size, args.img_size), Image.BILINEAR)
+        # heatmap = np.array(heatmap)
+        show_cam_on_image(image_orl, mask, target_index, 'RISE')
+
+
+    del model
+
+
+    ### torchray (Extremal)
+    model = load_backbone(args)
+    model = model.to(device)
+    model.eval()
+
+    for target_index in tqdm(range(0, args.num_classes)):
+        mask, _ = extremal_perturbation(model, image.to(device), target_index)
+        mask = mask.cpu().numpy()[0,0]
+
+        mask = np.maximum(mask, 0)
+        mask = mask - np.min(mask)
+        mask = mask / np.max(mask)
+        mask = np.maximum(mask, args.grad_min_level)
+        mask = mask - np.min(mask)
+        mask = mask / np.max(mask)
+
+        image_orl = image_orl.resize((args.img_size, args.img_size), Image.BILINEAR)
+        # heatmap = np.array(heatmap)
+        show_cam_on_image(image_orl, mask, target_index, 'Extremal')
+
+
+    del model
+
+    ### IBA
+    model = load_backbone(args)
+    model = model.to(device)
+    model.eval()
 
     imagenet_dir = '../../data/imagenet/ILSVRC/Data/CLS-LOC/validation'
     # Add a Per-Sample Bottleneck at layer conv4_1
@@ -114,11 +167,11 @@ def for_vis(args):
 
     for target_index in tqdm(range(0, args.num_classes)):
         # Closure that returns the loss for one batch
-        model_loss_closure = lambda x: -torch.log_softmax(model(x.cuda()), dim=1)[:, target_index].mean()
+        model_loss_closure = lambda x: -torch.log_softmax(model(x.to(device)), dim=1)[:, target_index].mean()
         # Explain class target for the given image
         saliency_map = iba.analyze(image, model_loss_closure, beta=10)
         # display result
-        model_loss_closure = lambda x: -torch.log_softmax(model(x.cuda()), 1)[:, target_index].mean()
+        model_loss_closure = lambda x: -torch.log_softmax(model(x.to(device)), 1)[:, target_index].mean()
         heatmap = iba.analyze(image, model_loss_closure )
 
         mask = heatmap
@@ -141,6 +194,7 @@ def for_vis(args):
     input_layer = MODEL_CONFIG['input_layer']
     fc_layer = MODEL_CONFIG['fc_layer']
 
+    ### torchcam
     del model
     model = load_backbone(args)
     model = model.to(device)

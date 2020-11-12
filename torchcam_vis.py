@@ -16,6 +16,7 @@ from tqdm import tqdm
 from dataset.ConText import ConText, MakeList, MakeListImage
 from dataset.CUB200 import CUB_200
 
+from torchcam.IGOS import Get_blurred_img, Integrated_Mask
 from torchray.attribution.rise import rise
 from torchray.attribution.extremal_perturbation import extremal_perturbation
 from torchcam.IBA.pytorch import IBA, tensor_to_np_img, get_imagenet_folder, imagenet_transform
@@ -102,6 +103,45 @@ def for_vis(args):
     image = transform(image)
     image = image.unsqueeze(0)
     device = torch.device(args.device)
+
+
+    ### IGOS
+    model = load_backbone(args)
+    model = model.to(device)
+    model.eval()
+
+    image_orl_for_blur = np.float32(image_orl) / 255.
+    img, blurred_img, logitori = Get_blurred_img(image_orl_for_blur, label, model, resize_shape=(260, 260),
+                                                    Gaussian_param=[51, 50],
+                                                    Median_param=11, blur_type='Gaussian', use_cuda=1)
+
+    for target_index in tqdm(range(0, args.num_classes)):
+        mask, upsampled_mask, imgratio, curvetop, curve1, curve2, category = Integrated_Mask(img, blurred_img, model,
+                                                                                                    label,
+                                                                                                    max_iterations=15,
+                                                                                                    integ_iter=20,
+                                                                                                    tv_beta=2,
+                                                                                                    l1_coeff=0.01 * 100,
+                                                                                                    tv_coeff=0.2 * 100,
+                                                                                                    size_init=28,
+                                                                                                    use_cuda=1)  #
+        mask = upsampled_mask.cpu().detach().numpy()[0,0]
+        mask = -mask + mask.max()*2.
+        
+        mask = np.maximum(mask, 0)
+        mask = mask - np.min(mask)
+        mask = mask / np.max(mask)
+        mask = np.maximum(mask, args.grad_min_level)
+        mask = mask - np.min(mask)
+        mask = mask / np.max(mask)
+        # mask = Image.fromarray(mask*255, mode='L').resize((args.img_size, args.img_size), Image.BILINEAR)
+        # mask = np.uint8(mask)
+
+        image_orl = image_orl.resize((args.img_size, args.img_size), Image.BILINEAR)
+        # heatmap = np.array(heatmap)
+        show_cam_on_image(image_orl, mask, target_index, 'IGOS')
+
+    del model
 
 
     ### torchray (RISE)

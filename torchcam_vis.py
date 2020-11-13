@@ -277,4 +277,5 @@ if __name__ == '__main__':
     for arg_id, arg in enumerate(args_for_evaluation):
         args_dict[arg] = args_type[arg_id](args_dict[arg])
 
+    os.makedirs('sloter/vis', exist_ok=True)
     for_vis(args)

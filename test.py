@@ -54,6 +54,8 @@ def main():
     for arg_id, arg in enumerate(args_for_evaluation):
         args_dict[arg] = args_type[arg_id](args_dict[arg])
 
+    os.makedirs('sloter/vis', exist_ok=True)
+
     model_name = f"{args.dataset}_" + f"{'use_slot_' if args.use_slot else 'no_slot_'}"\
                 + f"{'negative_' if args.use_slot and args.loss_status != 1 else ''}"\
                 + f"{'for_area_size_'+str(args.lambda_value) + '_'+ str(args.slots_per_class) + '_' if args.cal_area_size else ''}" + 'checkpoint.pth'

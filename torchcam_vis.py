@@ -156,7 +156,6 @@ def for_vis(args):
         mask = np.maximum(mask, 0)
         mask = mask - np.min(mask)
         mask = mask / np.max(mask)
-        mask = -mask + 1.
         mask = np.maximum(mask, args.grad_min_level)
         mask = mask - np.min(mask)
         mask = mask / np.max(mask)

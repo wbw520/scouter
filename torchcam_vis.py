@@ -123,7 +123,7 @@ def for_vis(args):
                                                                                                     tv_beta=2,
                                                                                                     l1_coeff=0.01 * 100,
                                                                                                     tv_coeff=0.2 * 100,
-                                                                                                    size_init=28,
+                                                                                                    size_init=8,
                                                                                                     use_cuda=1)  #
         mask = upsampled_mask.cpu().detach().numpy()[0,0]
         mask = -mask + mask.max()*2.

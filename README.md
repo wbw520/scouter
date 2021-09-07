@@ -243,12 +243,11 @@ This work was supported by Council for Science, Technology and Innovation (CSTI)
 
 If you want to use this work, please consider citing the following paper.
 ```
-@misc{li2020scouter,
-    title={SCOUTER: Slot Attention-based Classifier for Explainable Image Recognition},
-    author={Liangzhi Li and Bowen Wang and Manisha Verma and Yuta Nakashima and Ryo Kawasaki and Hajime Nagahara},
-    year={2020},
-    eprint={2009.06138},
-    archivePrefix={arXiv},
-    primaryClass={cs.CV}
+@inproceedings{li2021scouter,
+ author = {Liangzhi Li and Bowen Wang and Manisha Verma and Yuta Nakashima and Ryo Kawasaki and Hajime Nagahara},
+ booktitle = {IEEE International Conference on Computer Vision (ICCV)},
+ pages = {},
+ title = {SCOUTER: Slot Attention-based Classifier for Explainable Image Recognition},
+ year = {2021}
 }
 ```

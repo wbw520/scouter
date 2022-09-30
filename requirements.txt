@@ -4,7 +4,7 @@ decorator==4.4.2
 future==0.18.2
 imageio==2.9.0
 imgaug==0.4.0
-joblib==0.16.0
+joblib==1.2.0
 kiwisolver==1.2.0
 matplotlib==3.3.1
 networkx==2.5
